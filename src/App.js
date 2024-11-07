@@ -8,6 +8,7 @@ class App {
 
   async run() {
     await this.#convenienceStore.init();
+    this.#convenienceStore.printWelcomeAndInventory();
   }
 }
 
