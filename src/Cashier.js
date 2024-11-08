@@ -9,10 +9,11 @@ class Cashier {
 
   checkout({ productName, productCount, convenienceStore }) {
     const applicablePromotion = convenienceStore.getApplicablePromotion(productName);
-    const buyingProducts = convenienceStore.getProductFromInventory(productName);
+    const isPromo = !!applicablePromotion;
+    const buyingProducts = convenienceStore.getProductInfoFromInventory(productName, isPromo);
 
     if (!applicablePromotion) {
-      buyingProducts[0].quantity -= productCount;
+      convenienceStore.reduceStockBy(productName, productCount, isPromo);
       return;
     }
 

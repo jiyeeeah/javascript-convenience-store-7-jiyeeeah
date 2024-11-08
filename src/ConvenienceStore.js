@@ -36,20 +36,22 @@ class ConvenienceStore {
     return productInfo.quantity >= productCount;
   }
 
-  getProductFromInventory(productName) {
-    return this.#inventory.filter((product) => product.name === productName);
+  getProductInfoFromInventory(productName, isPromo) {
+    return this.#inventory.filter(
+      (product) =>
+        product.name === productName &&
+        ((!isPromo && product.promotion === "null") || (isPromo && product.promotion !== "null")),
+    )[0];
   }
 
   getApplicablePromotion(productName) {
     const today = MissionUtils.DateTimes.now();
 
-    const productPromotion = this.getProductFromInventory(productName).map(
-      (item) => item.promotion,
-    );
+    const productPromotionName = this.getProductInfoFromInventory(productName, true).promotion;
 
     return this.#promotion.filter(
       (promo) =>
-        productPromotion.includes(promo.name) &&
+        productPromotionName === promo.name &&
         today >= new Date(promo.start_date) &&
         today <= new Date(promo.end_date),
     )[0];
