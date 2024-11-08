@@ -1,3 +1,4 @@
+import Cashier from "./Cashier.js";
 import ConvenienceStore from "./ConvenienceStore.js";
 import Customer from "./Customer.js";
 import OutputView from "./View/OutputView.js";
@@ -5,10 +6,12 @@ import OutputView from "./View/OutputView.js";
 class App {
   #convenienceStore;
   #customer;
+  #cashier;
 
   constructor() {
     this.#convenienceStore = new ConvenienceStore();
     this.#customer = new Customer();
+    this.#cashier = new Cashier();
   }
 
   async run() {
@@ -16,6 +19,14 @@ class App {
     this.#convenienceStore.printWelcomeAndInventory();
 
     await this.#customerBuyProduct();
+
+    this.#customer.buyingProductCount.forEach((count, name) => {
+      this.#cashier.checkout({
+        productCount: count,
+        productName: name,
+        convenienceStore: this.#convenienceStore,
+      });
+    });
   }
 
   async #customerBuyProduct() {
