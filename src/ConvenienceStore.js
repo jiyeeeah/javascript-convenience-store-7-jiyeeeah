@@ -1,3 +1,4 @@
+import { MissionUtils } from "@woowacourse/mission-utils";
 import { getDataFromFile } from "./util.js";
 import OutputView from "./View/OutputView.js";
 
@@ -28,6 +29,25 @@ class ConvenienceStore {
       0,
     );
     return totalQuantity >= count;
+  }
+
+  getProductFromInventory(productName) {
+    return this.#inventory.filter((product) => product.name === productName);
+  }
+
+  getApplicablePromotion(productName) {
+    const today = MissionUtils.DateTimes.now();
+
+    const productPromotion = this.getProductFromInventory(productName).map(
+      (item) => item.promotion,
+    );
+
+    return this.#promotion.filter(
+      (promo) =>
+        productPromotion.includes(promo.name) &&
+        today >= new Date(promo.start_date) &&
+        today <= new Date(promo.end_date),
+    )[0];
   }
 }
 
