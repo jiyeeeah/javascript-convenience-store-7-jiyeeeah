@@ -51,6 +51,16 @@ describe("구매할 상품과 수량 입력 테스트", () => {
     );
   });
 
+  const negativeInput = [[["[콜라-0]"], ["[비타민워터-3],[에너지바--4]"]]];
+  test.each(negativeInput)("수량이 0개 이하인 경우 예외가 발생한다.", async (input) => {
+    mockQuestions(input);
+    await convenienceStore.init();
+
+    await expect(() => customer.buy(convenienceStore)).rejects.toThrow(
+      ERROR_MESSAGE.productCountNotNegative,
+    );
+  });
+
   const validInput = [[["[에너지바-2],[컵라면-1]"], ["[콜라-3]"]]];
   test.each(validInput)("입력값의 형식이 올바른 경우", async (input) => {
     mockQuestions(input);

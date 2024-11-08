@@ -10,7 +10,7 @@ class Customer {
     this.#validateInput(customerInput);
     const products = customerInput.split(",");
     products.forEach((product) => {
-      this.#validateEachInput(product);
+      this.#validateEachInput(product.trim());
       const [name, count] = product.slice(1, -1).split("-");
       this.#validateProduct(name, count, convenienceStore);
       this.#buyingProductCount[name] = count;
@@ -28,8 +28,10 @@ class Customer {
       throw new Error(ERROR_MESSAGE.wrongForm);
   }
 
+  // 대괄호 내의 내용 name과 count로 나눴을 때의 유효성 검사
   #validateProduct(name, count, convenienceStore) {
     if (!convenienceStore.isExistInInventory(name)) throw new Error(ERROR_MESSAGE.productNotExist);
+    if (count <= 0) throw new Error(ERROR_MESSAGE.productCountNotNegative);
   }
 }
 
