@@ -15,11 +15,15 @@ class App {
     await this.#convenienceStore.init();
     this.#convenienceStore.printWelcomeAndInventory();
 
+    await this.#customerBuyProduct();
+  }
+
+  async #customerBuyProduct() {
     try {
-      await this.#customer.buy();
+      await this.#customer.buy(this.#convenienceStore);
     } catch (error) {
       OutputView.printMessage(error.message);
-      await this.#customer.buy();
+      await this.#customerBuyProduct();
     }
   }
 }
