@@ -32,11 +32,11 @@ class ConvenienceStore {
   }
 
   isInPromoStock({ productName, productCount }) {
-    const productInfo = this.getProductInfoFromInventory(productName, true);
+    const productInfo = this.#getProductInfoFromInventory(productName, true);
     return productInfo.quantity >= productCount;
   }
 
-  getProductInfoFromInventory(productName, isPromo) {
+  #getProductInfoFromInventory(productName, isPromo) {
     return this.#inventory.filter(
       (product) =>
         product.name === productName &&
@@ -47,7 +47,7 @@ class ConvenienceStore {
   getApplicablePromotion(productName) {
     const today = MissionUtils.DateTimes.now();
 
-    const productPromotionName = this.getProductInfoFromInventory(productName, true).promotion;
+    const productPromotionName = this.#getProductInfoFromInventory(productName, true).promotion;
 
     return this.#promotion.filter(
       (promo) =>

@@ -76,31 +76,6 @@ describe("ConvenienceStore 테스트", () => {
     expect(convenienceStore.isInStock("비타민워터", 30)).toBe(false);
   });
 
-  test("제품의 정보를 가져온다.", async () => {
-    // given
-    await convenienceStore.init();
-
-    // then
-    expect(convenienceStore.getProductInfoFromInventory("콜라", false)).toEqual({
-      name: "콜라",
-      price: "1000",
-      quantity: "10",
-      promotion: "null",
-    });
-    expect(convenienceStore.getProductInfoFromInventory("콜라", true)).toEqual({
-      name: "콜라",
-      price: "1000",
-      quantity: "10",
-      promotion: "탄산2+1",
-    });
-    expect(convenienceStore.getProductInfoFromInventory("정식도시락", false)).toEqual({
-      name: "정식도시락",
-      price: "6400",
-      quantity: "8",
-      promotion: "null",
-    });
-  });
-
   test("제품에 적용될 프로모션 정보를 가져온다.", async () => {
     // given
     await convenienceStore.init();
