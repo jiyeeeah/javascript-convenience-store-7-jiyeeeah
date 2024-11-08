@@ -61,6 +61,16 @@ describe("구매할 상품과 수량 입력 테스트", () => {
     );
   });
 
+  const outOfStockInput = [[["[콜라-25]"], ["[오렌지주스-10]"], ["[컵라면-1],[탄산수-6]"]]];
+  test.each(outOfStockInput)("재고의 수량이 부족한 경우 예외가 발생한다.", async (input) => {
+    mockQuestions(input);
+    await convenienceStore.init();
+
+    await expect(() => customer.buy(convenienceStore)).rejects.toThrow(
+      ERROR_MESSAGE.productOverStock,
+    );
+  });
+
   const validInput = [[["[에너지바-2],[컵라면-1]"], ["[콜라-3]"]]];
   test.each(validInput)("입력값의 형식이 올바른 경우", async (input) => {
     mockQuestions(input);

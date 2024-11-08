@@ -32,6 +32,7 @@ class Customer {
   #validateProduct(name, count, convenienceStore) {
     if (!convenienceStore.isExistInInventory(name)) throw new Error(ERROR_MESSAGE.productNotExist);
     if (count <= 0) throw new Error(ERROR_MESSAGE.productCountNotNegative);
+    if (!convenienceStore.isInStock(name, count)) throw new Error(ERROR_MESSAGE.productOverStock);
   }
 }
 
