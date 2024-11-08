@@ -31,6 +31,11 @@ class ConvenienceStore {
     return totalQuantity >= count;
   }
 
+  isInPromoStock({ productName, productCount }) {
+    const productInfo = this.getProductInfoFromInventory(productName, true);
+    return productInfo.quantity >= productCount;
+  }
+
   getProductFromInventory(productName) {
     return this.#inventory.filter((product) => product.name === productName);
   }
@@ -48,6 +53,16 @@ class ConvenienceStore {
         today >= new Date(promo.start_date) &&
         today <= new Date(promo.end_date),
     )[0];
+  }
+
+  reduceStockBy(name, count, isPromo) {
+    this.#inventory.forEach((product) => {
+      if (product.name !== name) return;
+      if ((isPromo && product.promotion === "null") || (!isPromo && product.promotion !== "null"))
+        return;
+      // eslint-disable-next-line no-param-reassign
+      product.quantity -= count;
+    });
   }
 }
 

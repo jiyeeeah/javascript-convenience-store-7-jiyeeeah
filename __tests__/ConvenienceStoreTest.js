@@ -112,4 +112,23 @@ describe("ConvenienceStore 테스트", () => {
     });
     expect(convenienceStore.getApplicablePromotion("감자칩")).toBeUndefined();
   });
+
+  test("제품 수량 줄이는 메서드 테스트", async () => {
+    // given
+    await convenienceStore.init();
+
+    // when
+    convenienceStore.reduceStockBy("콜라", 3, true); // 콜라의 프로모션 재고 7 남음
+
+    // then
+    expect(convenienceStore.isInPromoStock({ productName: "콜라", productCount: 7 })).toBe(true);
+    expect(convenienceStore.isInPromoStock({ productName: "콜라", productCount: 9 })).toBe(false);
+
+    // when
+    convenienceStore.reduceStockBy("컵라면", 5, false); // 컵라면의 전체 재고 6 남음
+
+    // then
+    expect(convenienceStore.isInStock("컵라면", 5)).toBe(true);
+    expect(convenienceStore.isInStock("컵라면", 9)).toBe(false);
+  });
 });
