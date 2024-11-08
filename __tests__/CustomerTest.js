@@ -78,4 +78,13 @@ describe("구매할 상품과 수량 입력 테스트", () => {
 
     await expect(() => customer.buy(convenienceStore)).not.toThrow();
   });
+
+  test("고객이 구매하고자하는 제품과 수량을 전달한다.", async () => {
+    await convenienceStore.init();
+    mockQuestions(["[콜라-3]"]);
+
+    await customer.buy(convenienceStore);
+
+    expect(customer.buyingProductCount).toEqual(new Map([["콜라", 3]]));
+  });
 });

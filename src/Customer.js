@@ -2,7 +2,7 @@ import { ERROR_MESSAGE } from "./constant/message.js";
 import InputView from "./View/InputView.js";
 
 class Customer {
-  #buyingProductCount = {};
+  #buyingProductCount = new Map();
 
   async buy(convenienceStore) {
     const customerInput = await InputView.readItem();
@@ -12,8 +12,8 @@ class Customer {
     products.forEach((product) => {
       this.#validateEachInput(product.trim());
       const [name, count] = product.slice(1, -1).split("-");
-      this.#validateProduct(name, count, convenienceStore);
-      this.#buyingProductCount[name] = count;
+      this.#validateProduct(name.trim(), Number(count.trim()), convenienceStore);
+      this.#buyingProductCount.set(name, Number(count.trim()));
     });
   }
 
@@ -33,6 +33,10 @@ class Customer {
     if (!convenienceStore.isExistInInventory(name)) throw new Error(ERROR_MESSAGE.productNotExist);
     if (count <= 0) throw new Error(ERROR_MESSAGE.productCountNotNegative);
     if (!convenienceStore.isInStock(name, count)) throw new Error(ERROR_MESSAGE.productOverStock);
+  }
+
+  get buyingProductCount() {
+    return new Map(this.#buyingProductCount);
   }
 }
 
