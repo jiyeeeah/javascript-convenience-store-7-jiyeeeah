@@ -59,4 +59,14 @@ describe("ConvenienceStore 테스트", () => {
     expect(convenienceStore.isExistInInventory("비타민워터")).toBe(true);
     expect(convenienceStore.isExistInInventory("도시락")).toBe(false);
   });
+
+  test("제품 수량이 재고에서 부족한지 확인한다.", async () => {
+    // given
+    await convenienceStore.init();
+
+    // then
+    expect(convenienceStore.isInStock("콜라", 2)).toBe(true);
+    expect(convenienceStore.isInStock("사이다", 10)).toBe(true);
+    expect(convenienceStore.isInStock("비타민워터", 30)).toBe(false);
+  });
 });
