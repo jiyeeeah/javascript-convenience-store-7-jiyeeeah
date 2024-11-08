@@ -49,4 +49,14 @@ describe("ConvenienceStore 테스트", () => {
       expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(log));
     });
   });
+
+  test("재고에 제품이 존재하는지 확인한다.", async () => {
+    // given
+    await convenienceStore.init();
+
+    // then
+    expect(convenienceStore.isExistInInventory("콜라")).toBe(true);
+    expect(convenienceStore.isExistInInventory("비타민워터")).toBe(true);
+    expect(convenienceStore.isExistInInventory("도시락")).toBe(false);
+  });
 });

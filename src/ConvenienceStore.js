@@ -16,6 +16,10 @@ class ConvenienceStore {
       OutputView.printInventory(product);
     });
   }
+
+  isExistInInventory(name) {
+    return this.#inventory.some((product) => product.name === name);
+  }
 }
 
 export default ConvenienceStore;
