@@ -108,8 +108,8 @@ describe("ConvenienceStore 테스트", () => {
     convenienceStore.reduceStockBy("콜라", 3, true); // 콜라의 프로모션 재고 7 남음
 
     // then
-    expect(convenienceStore.isInPromoStock("콜라", 7)).toBe(true);
-    expect(convenienceStore.isInPromoStock("콜라", 9)).toBe(false);
+    expect(convenienceStore.compareWithPromoStock("콜라", 7)).toBe(0);
+    expect(convenienceStore.compareWithPromoStock("콜라", 9)).toBe(-2);
 
     // when
     convenienceStore.reduceStockBy("컵라면", 5, false); // 컵라면의 전체 재고 6 남음
@@ -126,5 +126,11 @@ describe("ConvenienceStore 테스트", () => {
     // when, then
     expect(convenienceStore.calculatePrice("에너지바", 3)).toBe(6000);
     expect(convenienceStore.calculatePrice("콜라", 5)).toBe(5000);
+  });
+
+  test("상품 수량 프로모션 재고랑 비교", async () => {
+    await convenienceStore.init();
+
+    expect(convenienceStore.compareWithPromoStock("오렌지주스", 1)).toBe(8);
   });
 });

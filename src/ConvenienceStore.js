@@ -31,9 +31,9 @@ class ConvenienceStore {
     return totalQuantity >= count;
   }
 
-  isInPromoStock(name, count) {
+  compareWithPromoStock(name, count) {
     const productInfo = this.#getProductInfoFromInventory(name, true);
-    return productInfo.quantity >= count;
+    return productInfo.quantity - count;
   }
 
   #getProductInfoFromInventory(productName, isPromo) {
