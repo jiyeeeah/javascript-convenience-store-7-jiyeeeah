@@ -97,6 +97,7 @@ describe("ConvenienceStore 테스트", () => {
       end_date: "2024-12-31",
     });
     expect(convenienceStore.getApplicablePromotion("감자칩")).toBeUndefined();
+    expect(convenienceStore.getApplicablePromotion("에너지바")).toBeUndefined();
   });
 
   test("제품 수량 줄이는 메서드 테스트", async () => {
@@ -107,8 +108,8 @@ describe("ConvenienceStore 테스트", () => {
     convenienceStore.reduceStockBy("콜라", 3, true); // 콜라의 프로모션 재고 7 남음
 
     // then
-    expect(convenienceStore.isInPromoStock({ productName: "콜라", productCount: 7 })).toBe(true);
-    expect(convenienceStore.isInPromoStock({ productName: "콜라", productCount: 9 })).toBe(false);
+    expect(convenienceStore.isInPromoStock("콜라", 7)).toBe(true);
+    expect(convenienceStore.isInPromoStock("콜라", 9)).toBe(false);
 
     // when
     convenienceStore.reduceStockBy("컵라면", 5, false); // 컵라면의 전체 재고 6 남음
