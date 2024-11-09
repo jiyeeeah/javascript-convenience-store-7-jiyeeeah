@@ -31,6 +31,14 @@ const InputView = {
     if (input !== "Y" && input !== "N") throw new Error(ERROR_MESSAGE.wrongInput);
     return input;
   },
+
+  async askBuyAgain() {
+    const input = await MissionUtils.Console.readLineAsync(
+      "감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)\n",
+    );
+    if (input !== "Y" && input !== "N") throw new Error(ERROR_MESSAGE.wrongInput);
+    return input;
+  },
 };
 
 export default InputView;

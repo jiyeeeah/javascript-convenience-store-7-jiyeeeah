@@ -16,6 +16,19 @@ class App {
 
   async run() {
     await this.#convenienceStore.init();
+    await this.#buyingProcess();
+  }
+
+  async #customerBuyProduct() {
+    try {
+      await this.#customer.buy(this.#convenienceStore);
+    } catch (error) {
+      OutputView.printMessage(error.message);
+      await this.#customerBuyProduct();
+    }
+  }
+
+  async #buyingProcess() {
     this.#convenienceStore.printWelcomeAndInventory();
 
     await this.#customerBuyProduct();
@@ -32,15 +45,9 @@ class App {
 
     const receipt = this.#cashier.getReceipt(this.#convenienceStore);
     OutputView.printMessage(receipt);
-  }
 
-  async #customerBuyProduct() {
-    try {
-      await this.#customer.buy(this.#convenienceStore);
-    } catch (error) {
-      OutputView.printMessage(error.message);
-      await this.#customerBuyProduct();
-    }
+    const restart = await this.#convenienceStore.askRestart();
+    if (restart) await this.#buyingProcess();
   }
 }
 

@@ -1,6 +1,7 @@
 import { MissionUtils } from "@woowacourse/mission-utils";
 import { getDataFromFile } from "./util.js";
 import OutputView from "./View/OutputView.js";
+import InputView from "./View/InputView.js";
 
 class ConvenienceStore {
   #inventory;
@@ -75,6 +76,16 @@ class ConvenienceStore {
     const productPrice = productInfo.price;
 
     return productPrice * count;
+  }
+
+  async askRestart() {
+    try {
+      const answer = await InputView.askBuyAgain();
+      return answer === "Y";
+    } catch (error) {
+      OutputView.printMessage(error.message);
+      return this.askRestart();
+    }
   }
 }
 
