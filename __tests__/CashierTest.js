@@ -140,4 +140,21 @@ describe("Cashier 클래스 테스트", () => {
     // then
     expect(cashier.getMembershipDiscount()).toBe(3000);
   });
+
+  test("영수증 출력 테스트", async () => {
+    // given
+    await convenienceStore.init();
+    await cashier.checkout({ productName: "콜라", productCount: 3, convenienceStore });
+    await cashier.checkout({ productName: "에너지바", productCount: 5, convenienceStore });
+
+    // when
+    mockQuestions(["Y"]); // 멤버십 적용
+    await cashier.askMembershipDiscount();
+
+    // then
+    const outputs = ["총구매액		8	13,000", "행사할인			-1,000", "멤버십할인			-3,000", "내실돈			 9,000"];
+    outputs.forEach((output) => {
+      expect(cashier.getReceipt(convenienceStore)).toContain(output);
+    });
+  });
 });

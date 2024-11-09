@@ -29,6 +29,9 @@ class App {
     });
 
     this.#cashier.askMembershipDiscount();
+
+    const receipt = this.#cashier.getReceipt(this.#convenienceStore);
+    OutputView.printMessage(receipt);
   }
 
   async #customerBuyProduct() {
