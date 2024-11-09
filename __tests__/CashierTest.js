@@ -38,6 +38,12 @@ describe("Cashier 클래스 테스트", () => {
     cashier.checkout({ productName: "정식도시락", productCount: 1, convenienceStore }); // 6400원
 
     // then
+    expect(cashier.getPurchaseProducts()).toEqual(
+      new Map([
+        ["감자칩", 3],
+        ["정식도시락", 1],
+      ]),
+    );
     expect(cashier.getTotalPurchaseAmount()).toBe(10900);
   });
 });

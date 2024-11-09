@@ -17,6 +17,14 @@ const InputView = {
     if (input !== "Y" && input !== "N") throw new Error(ERROR_MESSAGE.wrongInput);
     return input;
   },
+
+  async askAddPromotionProduct() {
+    const input = await MissionUtils.Console.readLineAsync(
+      "현재 {상품명}은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)",
+    );
+    if (input !== "Y" && input !== "N") throw new Error(ERROR_MESSAGE.wrongInput);
+    return input;
+  },
 };
 
 export default InputView;
