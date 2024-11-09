@@ -12,47 +12,59 @@ class Cashier {
 
   async checkout({ productName, productCount, convenienceStore }) {
     const applicablePromotion = convenienceStore.getApplicablePromotion(productName);
-    const isPromo = applicablePromotion !== undefined;
 
     // 적용할 프로모션이 없는 경우
     if (!applicablePromotion) {
-      convenienceStore.reduceStockBy(productName, productCount, isPromo); // 재고에서 없애기
+      convenienceStore.reduceStockBy(productName, productCount, false); // 재고에서 없애기
       const productTotalPrice = convenienceStore.calculatePrice(productName, productCount);
       this.#paymentProcess({ productName, productCount, productTotalPrice });
       return;
     }
 
-    // 재고에 수량 부족한 경우
-    if (!convenienceStore.isInPromoStock(productName, productCount)) {
-      const ifPayWithoutPromo = await this.#askIfPayWithoutPromo(productName, productCount);
-      if (ifPayWithoutPromo) {
-        // 일부 수량에 대해 정가로 결제
-      }
-      // 정가로 결제해야 하는 수량 제외하고 결제
-    }
-
-    // 프로모션 적용 가능한 상품에 대해 고객이 해당 수량보다 적게 가져온 경우
     const { buy, get } = applicablePromotion;
     const totalPromotionCount = Number(buy) + Number(get);
-    if (productCount % totalPromotionCount === Number(buy)) {
+    let totalProductCount = productCount;
+    let promotionAppliedCount = productCount;
+
+    // 재고에 수량 부족한 경우
+    const restCount = convenienceStore.compareWithPromoStock(productName, productCount);
+    if (restCount < 0) {
+      const restProductCount = Math.abs(restCount);
+      const ifPayWithoutPromo = await this.#askIfPayWithoutPromo(productName, restProductCount);
+      if (ifPayWithoutPromo) {
+        // 일부 수량에 대해 정가로 결제
+        convenienceStore.reduceStockBy(productName, restProductCount, false); // 일반 재고에서 없애기
+        const productTotalPrice = convenienceStore.calculatePrice(productName, restProductCount);
+        this.#paymentProcess({ productName, restProductCount, productTotalPrice });
+        promotionAppliedCount += restCount;
+      } else {
+        // 정가로 결제해야 하는 수량 제외하고 결제
+        totalProductCount += restCount;
+        promotionAppliedCount += restCount;
+      }
+    }
+
+    let promotionCount = Math.floor(promotionAppliedCount / totalPromotionCount);
+    // 프로모션 적용 가능한 상품에 대해 고객이 해당 수량보다 적게 가져온 경우
+    if (productCount % totalPromotionCount === Number(buy) && restCount > 0) {
       const addPromoProduct = await this.#askIfAddPromoProduct(productName);
-      let promotionCount = Math.floor(productCount / totalPromotionCount);
-      let totalProductCount = productCount;
       if (addPromoProduct) {
         promotionCount += 1;
         totalProductCount += 1;
+        promotionAppliedCount += 1;
       }
-      convenienceStore.reduceStockBy(productName, productCount, isPromo); // 재고에서 없애기
-      const productTotalPrice = convenienceStore.calculatePrice(productName, totalProductCount);
-      const promotionPrice = convenienceStore.calculatePrice(productName, promotionCount);
-      this.#paymentProcessPromo({
-        productName,
-        productCount: totalProductCount,
-        promotionCount,
-        productTotalPrice,
-        promotionPrice,
-      });
     }
+
+    convenienceStore.reduceStockBy(productName, totalProductCount, true); // 재고에서 없애기
+    const productTotalPrice = convenienceStore.calculatePrice(productName, promotionAppliedCount);
+    const promotionPrice = convenienceStore.calculatePrice(productName, promotionCount);
+    this.#paymentProcessPromo({
+      productName,
+      productCount: totalProductCount,
+      promotionCount,
+      productTotalPrice,
+      promotionPrice,
+    });
   }
 
   #paymentProcess({ productName, productCount, productTotalPrice }) {
