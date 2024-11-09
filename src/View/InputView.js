@@ -25,6 +25,12 @@ const InputView = {
     if (input !== "Y" && input !== "N") throw new Error(ERROR_MESSAGE.wrongInput);
     return input;
   },
+
+  async askMembership() {
+    const input = await MissionUtils.Console.readLineAsync("멤버십 할인을 받으시겠습니까? (Y/N)\n");
+    if (input !== "Y" && input !== "N") throw new Error(ERROR_MESSAGE.wrongInput);
+    return input;
+  },
 };
 
 export default InputView;

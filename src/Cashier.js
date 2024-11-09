@@ -5,7 +5,8 @@ class Cashier {
   #purchasedProduct = new Map();
   #promotionProduct = new Map();
   #payment = {
-    total: 0,
+    normalPaymentTotal: 0,
+    promotionAppliedPaymentTotal: 0,
     promotionDiscount: 0,
     membershipDiscount: 0,
   };
@@ -29,18 +30,20 @@ class Cashier {
     // 재고에 수량 부족한 경우
     const restCount = convenienceStore.compareWithPromoStock(productName, productCount);
     if (restCount < 0) {
-      const restProductCount = Math.abs(restCount);
+      promotionAppliedCount =
+        Math.floor((productCount + restCount) / totalPromotionCount) * totalPromotionCount;
+      const restProductCount = productCount - promotionAppliedCount;
+
       const ifPayWithoutPromo = await this.#askIfPayWithoutPromo(productName, restProductCount);
       if (ifPayWithoutPromo) {
         // 일부 수량에 대해 정가로 결제
         convenienceStore.reduceStockBy(productName, restProductCount, false); // 일반 재고에서 없애기
         const productTotalPrice = convenienceStore.calculatePrice(productName, restProductCount);
-        this.#paymentProcess({ productName, restProductCount, productTotalPrice });
-        promotionAppliedCount += restCount;
+        this.#paymentProcess({ productName, productCount: restProductCount, productTotalPrice });
       } else {
         // 정가로 결제해야 하는 수량 제외하고 결제
         totalProductCount += restCount;
-        promotionAppliedCount += restCount;
+        promotionAppliedCount = productCount + restCount;
       }
     }
 
@@ -69,7 +72,7 @@ class Cashier {
 
   #paymentProcess({ productName, productCount, productTotalPrice }) {
     this.#purchasedProduct.set(productName, productCount);
-    this.#payment.total += productTotalPrice; // 계산해야 할 total에 저장
+    this.#payment.normalPaymentTotal += productTotalPrice; // 계산해야 할 total에 저장
   }
 
   #paymentProcessPromo({
@@ -81,7 +84,7 @@ class Cashier {
   }) {
     this.#purchasedProduct.set(productName, productCount);
     if (promotionCount > 0) this.#promotionProduct.set(productName, promotionCount);
-    this.#payment.total += productTotalPrice; // 계산해야 할 total에 저장
+    this.#payment.promotionAppliedPaymentTotal += productTotalPrice; // 계산해야 할 total에 저장
     this.#payment.promotionDiscount += promotionPrice;
   }
 
@@ -94,11 +97,19 @@ class Cashier {
   }
 
   getTotalPurchaseAmount() {
-    return this.#payment.total;
+    return this.#payment.normalPaymentTotal;
+  }
+
+  getPromotionAppliedAmount() {
+    return this.#payment.promotionAppliedPaymentTotal;
   }
 
   getPromotionDiscount() {
     return this.#payment.promotionDiscount;
+  }
+
+  getMembershipDiscount() {
+    return this.#payment.membershipDiscount;
   }
 
   async #askIfPayWithoutPromo(productName, productCount) {
@@ -119,6 +130,23 @@ class Cashier {
       OutputView.printMessage(error.message);
       return this.#askIfAddPromoProduct(productName);
     }
+  }
+
+  async askMembershipDiscount() {
+    try {
+      const answer = await InputView.askMembership();
+      if (answer === "Y") {
+        this.#membershipDiscount();
+      }
+      return answer === "Y";
+    } catch (error) {
+      OutputView.printMessage(error.message);
+      return this.askMembershipDiscount();
+    }
+  }
+
+  #membershipDiscount() {
+    this.#payment.membershipDiscount += this.#payment.normalPaymentTotal * 0.3;
   }
 }
 

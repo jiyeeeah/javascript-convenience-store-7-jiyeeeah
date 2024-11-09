@@ -77,7 +77,7 @@ describe("Cashier 클래스 테스트", () => {
     // then
     expect(cashier.getPurchaseProducts()).toEqual(new Map([["오렌지주스", 2]])); // 상품 구매 내역 : 2개
     expect(cashier.getPromotionProduct()).toEqual(new Map([["오렌지주스", 1]])); // 증정 상품 내역 : 1개
-    expect(cashier.getTotalPurchaseAmount()).toBe(3600); // 총 구매 액
+    expect(cashier.getPromotionAppliedAmount()).toBe(3600); // 프로모션 적용 총 구매 액
     expect(cashier.getPromotionDiscount()).toBe(1800); // 할인 금액
   });
 
@@ -92,7 +92,7 @@ describe("Cashier 클래스 테스트", () => {
     // then
     expect(cashier.getPurchaseProducts()).toEqual(new Map([["오렌지주스", 1]])); // 상품 구매 내역 : 2개
     expect(cashier.getPromotionProduct()).toEqual(new Map()); // 증정 상품 내역 : 1개
-    expect(cashier.getTotalPurchaseAmount()).toBe(1800); // 총 구매 액
+    expect(cashier.getPromotionAppliedAmount()).toBe(1800); // 프로모션 적용 총 구매 액
     expect(cashier.getPromotionDiscount()).toBe(0); // 할인 금액
   });
 
@@ -107,7 +107,8 @@ describe("Cashier 클래스 테스트", () => {
     // then
     expect(cashier.getPurchaseProducts()).toEqual(new Map([["사이다", 10]])); // 상품 구매 내역 : 10개
     expect(cashier.getPromotionProduct()).toEqual(new Map([["사이다", 2]])); // 증정 상품 내역 : 2개
-    expect(cashier.getTotalPurchaseAmount()).toBe(10000); // 총 구매 액
+    expect(cashier.getPromotionAppliedAmount()).toBe(6000); // 프로모션 적용 총 구매 액
+    expect(cashier.getTotalPurchaseAmount()).toBe(4000); // 프로모션 미 적용 총 구매 액
     expect(cashier.getPromotionDiscount()).toBe(2000); // 할인 금액
   });
 
@@ -122,7 +123,21 @@ describe("Cashier 클래스 테스트", () => {
     // then
     expect(cashier.getPurchaseProducts()).toEqual(new Map([["사이다", 8]])); // 상품 구매 내역 : 8개
     expect(cashier.getPromotionProduct()).toEqual(new Map([["사이다", 2]])); // 증정 상품 내역 : 2개
-    expect(cashier.getTotalPurchaseAmount()).toBe(8000); // 총 구매 액
+    expect(cashier.getPromotionAppliedAmount()).toBe(8000); // 프로모션 적용 총 구매 액
     expect(cashier.getPromotionDiscount()).toBe(2000); // 할인 금액
+  });
+
+  test("멤버십 할인 적용 여부 테스트 - 적용하는 경우", async () => {
+    // given
+    await convenienceStore.init();
+    await cashier.checkout({ productName: "콜라", productCount: 3, convenienceStore });
+    await cashier.checkout({ productName: "에너지바", productCount: 5, convenienceStore });
+
+    // when
+    mockQuestions(["Y"]); // 멤버십 적용
+    await cashier.askMembershipDiscount();
+
+    // then
+    expect(cashier.getMembershipDiscount()).toBe(3000);
   });
 });

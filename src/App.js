@@ -27,6 +27,8 @@ class App {
         convenienceStore: this.#convenienceStore,
       });
     });
+
+    this.#cashier.askMembershipDiscount();
   }
 
   async #customerBuyProduct() {
