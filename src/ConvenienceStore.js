@@ -69,6 +69,13 @@ class ConvenienceStore {
       product.quantity -= count;
     });
   }
+
+  calculatePrice(name, count) {
+    const productInfo = this.#getProductInfoFromInventory(name, false);
+    const productPrice = productInfo.price;
+
+    return productPrice * count;
+  }
 }
 
 export default ConvenienceStore;

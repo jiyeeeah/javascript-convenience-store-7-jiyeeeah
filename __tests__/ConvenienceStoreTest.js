@@ -118,4 +118,13 @@ describe("ConvenienceStore 테스트", () => {
     expect(convenienceStore.isInStock("컵라면", 5)).toBe(true);
     expect(convenienceStore.isInStock("컵라면", 9)).toBe(false);
   });
+
+  test("제품 가격 계산", async () => {
+    // given
+    await convenienceStore.init();
+
+    // when, then
+    expect(convenienceStore.calculatePrice("에너지바", 3)).toBe(6000);
+    expect(convenienceStore.calculatePrice("콜라", 5)).toBe(5000);
+  });
 });
