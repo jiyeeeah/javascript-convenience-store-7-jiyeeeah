@@ -24,7 +24,7 @@ class Cashier {
 
     // 재고에 수량 부족한 경우
     if (!convenienceStore.isInPromoStock(productName, productCount)) {
-      const ifPayWithoutPromo = await this.#askIfPayWithoutPromo();
+      const ifPayWithoutPromo = await this.#askIfPayWithoutPromo(productName, productCount);
       if (ifPayWithoutPromo) {
         // 일부 수량에 대해 정가로 결제
       }
@@ -35,10 +35,10 @@ class Cashier {
     const { buy, get } = applicablePromotion;
     const totalPromotionCount = Number(buy) + Number(get);
     if (productCount % totalPromotionCount === Number(buy)) {
-      const ifAddPromoProduct = await this.#askIfAddPromoProduct();
+      const addPromoProduct = await this.#askIfAddPromoProduct(productName);
       let promotionCount = Math.floor(productCount / totalPromotionCount);
       let totalProductCount = productCount;
-      if (ifAddPromoProduct) {
+      if (addPromoProduct) {
         promotionCount += 1;
         totalProductCount += 1;
       }
@@ -89,9 +89,9 @@ class Cashier {
     return this.#payment.promotionDiscount;
   }
 
-  async #askIfPayWithoutPromo() {
+  async #askIfPayWithoutPromo(productName, productCount) {
     try {
-      const answer = await InputView.askPromotionStockShortage();
+      const answer = await InputView.askPromotionStockShortage(productName, productCount);
       return answer === "Y";
     } catch (error) {
       OutputView.printMessage(error.message);
@@ -99,13 +99,13 @@ class Cashier {
     }
   }
 
-  async #askIfAddPromoProduct() {
+  async #askIfAddPromoProduct(productName) {
     try {
-      const answer = await InputView.askAddPromotionProduct();
+      const answer = await InputView.askAddPromotionProduct(productName);
       return answer === "Y";
     } catch (error) {
       OutputView.printMessage(error.message);
-      return this.#askIfAddPromoProduct();
+      return this.#askIfAddPromoProduct(productName);
     }
   }
 }

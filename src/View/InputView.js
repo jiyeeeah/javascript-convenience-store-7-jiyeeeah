@@ -10,17 +10,17 @@ const InputView = {
     return input;
   },
 
-  async askPromotionStockShortage() {
+  async askPromotionStockShortage(productName, productCount) {
     const input = await MissionUtils.Console.readLineAsync(
-      "현재 {상품명} {수량}개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)",
+      `현재 ${productName} ${productCount}개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)\n`,
     );
     if (input !== "Y" && input !== "N") throw new Error(ERROR_MESSAGE.wrongInput);
     return input;
   },
 
-  async askAddPromotionProduct() {
+  async askAddPromotionProduct(productName) {
     const input = await MissionUtils.Console.readLineAsync(
-      "현재 {상품명}은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)",
+      `현재 ${productName}은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n`,
     );
     if (input !== "Y" && input !== "N") throw new Error(ERROR_MESSAGE.wrongInput);
     return input;
