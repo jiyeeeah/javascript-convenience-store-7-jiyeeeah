@@ -20,10 +20,10 @@ class App {
 
     await this.#customerBuyProduct();
 
-    this.#customer.buyingProductCount.forEach((count, name) => {
+    this.#customer.buyingProductCount.forEach(async (productCount, productName) => {
       this.#cashier.checkout({
-        productCount: count,
-        productName: name,
+        productName,
+        productCount,
         convenienceStore: this.#convenienceStore,
       });
     });
