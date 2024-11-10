@@ -3,6 +3,11 @@ import fs from "fs";
 
 const isNumber = (num) => !Number.isNaN(Number(num));
 
+export const splitString = (input, separator) => input.split(separator);
+
+export const isInputWrappedWith = (input, wrapper) =>
+  input[0] === wrapper[0] && input[input.length - 1] === wrapper[1];
+
 export const getDataFromFile = async (filePath) => {
   const result = fs.readFileSync(filePath, "utf8", (err, data) => {
     if (err) {
