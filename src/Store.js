@@ -22,13 +22,11 @@ class Store {
   }
 
   isExistInInventory(name) {
-    return this.#inventory.some((product) => product.name === name);
+    return this.#inventory.isExistInInventory(name);
   }
 
   isInStock(name, count) {
-    const filteredProducts = this.#inventory.filter((product) => product.name === name);
-    const totalQuantity = filteredProducts.reduce((acc, product) => acc + product.quantity, 0);
-    return totalQuantity >= count;
+    return this.#inventory.isInStock(name, count);
   }
 
   compareWithPromoStock(name, count) {

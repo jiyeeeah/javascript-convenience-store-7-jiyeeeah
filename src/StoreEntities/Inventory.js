@@ -21,6 +21,16 @@ class Inventory {
       })
       .join("\n");
   }
+
+  isExistInInventory(name) {
+    return this.#inventory.some((product) => product.name === name);
+  }
+
+  isInStock(name, count) {
+    const filteredProducts = this.#inventory.filter((product) => product.name === name);
+    const totalQuantity = filteredProducts.reduce((acc, product) => acc + product.quantity, 0);
+    return totalQuantity >= count;
+  }
 }
 
 export default Inventory;
