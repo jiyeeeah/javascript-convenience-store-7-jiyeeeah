@@ -3,7 +3,7 @@ import fs from "fs";
 
 const isNumber = (num) => !Number.isNaN(Number(num));
 
-export const getDataFromFile = (filePath) => {
+export const getDataFromFile = async (filePath) => {
   const result = fs.readFileSync(filePath, "utf8", (err, data) => {
     if (err) {
       throw new Error("[ERROR] 파일을 불러오는 과정에서 문제가 생겼습니다. 다시 시도해주세요");

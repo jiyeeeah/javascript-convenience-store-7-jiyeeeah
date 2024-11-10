@@ -34,14 +34,14 @@ class App {
     await this.#customerBuyProduct();
 
     this.#customer.buyingProductCount.forEach(async (productCount, productName) => {
-      this.#cashier.checkout({
+      await this.#cashier.checkout({
         productName,
         productCount,
         store: this.#store,
       });
     });
 
-    this.#cashier.askMembershipDiscount();
+    await this.#cashier.askMembershipDiscount();
 
     const receipt = this.#cashier.getReceipt(this.#store);
     OutputView.printMessage(receipt);
