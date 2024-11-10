@@ -2,6 +2,7 @@ import { MissionUtils } from "@woowacourse/mission-utils";
 import { getDataFromFile } from "./util.js";
 import OutputView from "./View/OutputView.js";
 import InputView from "./View/InputView.js";
+import Promotion from "./StoreEntities/Promotion.js";
 
 class Store {
   #inventory;
@@ -9,7 +10,9 @@ class Store {
 
   async init() {
     this.#inventory = await getDataFromFile("./public/products.md");
-    this.#promotion = await getDataFromFile("./public/promotions.md");
+
+    this.#promotion = new Promotion();
+    await this.#promotion.init();
   }
 
   printWelcomeAndInventory() {
@@ -50,12 +53,11 @@ class Store {
 
     const productPromotionName = promoProductInfo.promotion;
 
-    return this.#promotion.filter(
-      (promo) =>
-        productPromotionName === promo.name &&
-        today >= new Date(promo.start_date) &&
-        today <= new Date(promo.end_date),
-    )[0];
+    const promotionInfo = this.#promotion.getPromotionByName(productPromotionName);
+    if (today < new Date(promotionInfo.start_date) || today > new Date(promotionInfo.end_date))
+      return undefined;
+
+    return promotionInfo;
   }
 
   reduceStockBy(name, count, isPromo) {
@@ -63,7 +65,6 @@ class Store {
       if (product.name !== name) return;
       if ((isPromo && product.promotion === "null") || (!isPromo && product.promotion !== "null"))
         return;
-      // eslint-disable-next-line no-param-reassign
       product.quantity -= count;
     });
   }
