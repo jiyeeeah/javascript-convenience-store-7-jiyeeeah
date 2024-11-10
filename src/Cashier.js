@@ -11,13 +11,13 @@ class Cashier {
     membershipDiscount: 0,
   };
 
-  async checkout({ productName, productCount, convenienceStore }) {
-    const applicablePromotion = convenienceStore.getApplicablePromotion(productName);
+  async checkout({ productName, productCount, store }) {
+    const applicablePromotion = store.getApplicablePromotion(productName);
 
     // 적용할 프로모션이 없는 경우
     if (!applicablePromotion) {
-      convenienceStore.reduceStockBy(productName, productCount, false); // 재고에서 없애기
-      const productTotalPrice = convenienceStore.calculatePrice(productName, productCount);
+      store.reduceStockBy(productName, productCount, false); // 재고에서 없애기
+      const productTotalPrice = store.calculatePrice(productName, productCount);
       this.#paymentProcess({ productName, productCount, productTotalPrice });
       return;
     }
@@ -28,7 +28,7 @@ class Cashier {
     let promotionAppliedCount = productCount;
 
     // 재고에 수량 부족한 경우
-    const restCount = convenienceStore.compareWithPromoStock(productName, productCount);
+    const restCount = store.compareWithPromoStock(productName, productCount);
     if (restCount < 0) {
       promotionAppliedCount =
         Math.floor((productCount + restCount) / totalPromotionCount) * totalPromotionCount;
@@ -37,8 +37,8 @@ class Cashier {
       const ifPayWithoutPromo = await this.#askIfPayWithoutPromo(productName, restProductCount);
       if (ifPayWithoutPromo) {
         // 일부 수량에 대해 정가로 결제
-        convenienceStore.reduceStockBy(productName, restProductCount, false); // 일반 재고에서 없애기
-        const productTotalPrice = convenienceStore.calculatePrice(productName, restProductCount);
+        store.reduceStockBy(productName, restProductCount, false); // 일반 재고에서 없애기
+        const productTotalPrice = store.calculatePrice(productName, restProductCount);
         this.#paymentProcess({ productName, productCount: restProductCount, productTotalPrice });
       } else {
         // 정가로 결제해야 하는 수량 제외하고 결제
@@ -58,9 +58,9 @@ class Cashier {
       }
     }
 
-    convenienceStore.reduceStockBy(productName, totalProductCount, true); // 재고에서 없애기
-    const productTotalPrice = convenienceStore.calculatePrice(productName, promotionAppliedCount);
-    const promotionPrice = convenienceStore.calculatePrice(productName, promotionCount);
+    store.reduceStockBy(productName, totalProductCount, true); // 재고에서 없애기
+    const productTotalPrice = store.calculatePrice(productName, promotionAppliedCount);
+    const promotionPrice = store.calculatePrice(productName, promotionCount);
     this.#paymentProcessPromo({
       productName,
       productCount: totalProductCount,
@@ -149,11 +149,11 @@ class Cashier {
     this.#payment.membershipDiscount += this.#payment.normalPaymentTotal * 0.3;
   }
 
-  getReceipt(convenienceStore) {
+  getReceipt(store) {
     let purchasedProductString = "";
     let purchasedTotalCount = 0;
     this.#purchasedProduct.forEach((productCount, productName) => {
-      purchasedProductString += `${productName}     ${productCount}     ${convenienceStore.calculatePrice(productName, productCount).toLocaleString()}\n`;
+      purchasedProductString += `${productName}     ${productCount}     ${store.calculatePrice(productName, productCount).toLocaleString()}\n`;
       purchasedTotalCount += productCount;
     });
 

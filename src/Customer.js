@@ -4,7 +4,7 @@ import InputView from "./View/InputView.js";
 class Customer {
   #buyingProductCount = new Map();
 
-  async buy(convenienceStore) {
+  async buy(store) {
     const customerInput = await InputView.readItem();
 
     this.#validateInput(customerInput);
@@ -12,7 +12,7 @@ class Customer {
     products.forEach((product) => {
       this.#validateEachInput(product.trim());
       const [name, count] = product.slice(1, -1).split("-");
-      this.#validateProduct(name.trim(), Number(count.trim()), convenienceStore);
+      this.#validateProduct(name.trim(), Number(count.trim()), store);
       this.#buyingProductCount.set(name, Number(count.trim()));
     });
   }
@@ -29,10 +29,10 @@ class Customer {
   }
 
   // 대괄호 내의 내용 name과 count로 나눴을 때의 유효성 검사
-  #validateProduct(name, count, convenienceStore) {
-    if (!convenienceStore.isExistInInventory(name)) throw new Error(ERROR_MESSAGE.productNotExist);
+  #validateProduct(name, count, store) {
+    if (!store.isExistInInventory(name)) throw new Error(ERROR_MESSAGE.productNotExist);
     if (count <= 0) throw new Error(ERROR_MESSAGE.productCountNotNegative);
-    if (!convenienceStore.isInStock(name, count)) throw new Error(ERROR_MESSAGE.productOverStock);
+    if (!store.isInStock(name, count)) throw new Error(ERROR_MESSAGE.productOverStock);
   }
 
   get buyingProductCount() {

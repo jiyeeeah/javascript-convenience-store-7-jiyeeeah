@@ -1,5 +1,5 @@
 import { MissionUtils } from "@woowacourse/mission-utils";
-import ConvenienceStore from "../src/ConvenienceStore.js";
+import Store from "../src/Store.js";
 
 const getLogSpy = () => {
   const logSpy = jest.spyOn(MissionUtils.Console, "print");
@@ -13,19 +13,19 @@ const mockNowDate = (date = null) => {
   return mockDateTimes;
 };
 
-describe("ConvenienceStore 테스트", () => {
-  let convenienceStore;
+describe("Store 테스트", () => {
+  let store;
   beforeEach(() => {
-    convenienceStore = new ConvenienceStore();
+    store = new Store();
   });
 
   test("환영인사와 함께 최초의 상품명, 가격, 프로모션 이름, 재고 출력하기", async () => {
     // given
     const logSpy = getLogSpy();
-    await convenienceStore.init();
+    await store.init();
 
     // when
-    convenienceStore.printWelcomeAndInventory();
+    store.printWelcomeAndInventory();
 
     const printMessage = [
       "안녕하세요. W편의점입니다.",
@@ -58,79 +58,79 @@ describe("ConvenienceStore 테스트", () => {
 
   test("재고에 제품이 존재하는지 확인한다.", async () => {
     // given
-    await convenienceStore.init();
+    await store.init();
 
     // then
-    expect(convenienceStore.isExistInInventory("콜라")).toBe(true);
-    expect(convenienceStore.isExistInInventory("비타민워터")).toBe(true);
-    expect(convenienceStore.isExistInInventory("도시락")).toBe(false);
+    expect(store.isExistInInventory("콜라")).toBe(true);
+    expect(store.isExistInInventory("비타민워터")).toBe(true);
+    expect(store.isExistInInventory("도시락")).toBe(false);
   });
 
   test("제품 수량이 재고에서 부족한지 확인한다.", async () => {
     // given
-    await convenienceStore.init();
+    await store.init();
 
     // then
-    expect(convenienceStore.isInStock("콜라", 2)).toBe(true);
-    expect(convenienceStore.isInStock("사이다", 10)).toBe(true);
-    expect(convenienceStore.isInStock("비타민워터", 30)).toBe(false);
+    expect(store.isInStock("콜라", 2)).toBe(true);
+    expect(store.isInStock("사이다", 10)).toBe(true);
+    expect(store.isInStock("비타민워터", 30)).toBe(false);
   });
 
   test("제품에 적용될 프로모션 정보를 가져온다.", async () => {
     // given
-    await convenienceStore.init();
+    await store.init();
     mockNowDate("2024-02-01"); // 반짝할인은 적용 안됨. 나머지는 적용됨
 
     // then
-    expect(convenienceStore.getApplicablePromotion("콜라")).toEqual({
+    expect(store.getApplicablePromotion("콜라")).toEqual({
       name: "탄산2+1",
       buy: "2",
       get: "1",
       start_date: "2024-01-01",
       end_date: "2024-12-31",
     });
-    expect(convenienceStore.getApplicablePromotion("오렌지주스")).toEqual({
+    expect(store.getApplicablePromotion("오렌지주스")).toEqual({
       name: "MD추천상품",
       buy: "1",
       get: "1",
       start_date: "2024-01-01",
       end_date: "2024-12-31",
     });
-    expect(convenienceStore.getApplicablePromotion("감자칩")).toBeUndefined();
-    expect(convenienceStore.getApplicablePromotion("에너지바")).toBeUndefined();
+    expect(store.getApplicablePromotion("감자칩")).toBeUndefined();
+    expect(store.getApplicablePromotion("에너지바")).toBeUndefined();
   });
 
   test("제품 수량 줄이는 메서드 테스트", async () => {
     // given
-    await convenienceStore.init();
+    await store.init();
 
     // when
-    convenienceStore.reduceStockBy("콜라", 3, true); // 콜라의 프로모션 재고 7 남음
+    store.reduceStockBy("콜라", 3, true); // 콜라의 프로모션 재고 7 남음
 
     // then
-    expect(convenienceStore.compareWithPromoStock("콜라", 7)).toBe(0);
-    expect(convenienceStore.compareWithPromoStock("콜라", 9)).toBe(-2);
+    expect(store.compareWithPromoStock("콜라", 7)).toBe(0);
+    expect(store.compareWithPromoStock("콜라", 9)).toBe(-2);
 
     // when
-    convenienceStore.reduceStockBy("컵라면", 5, false); // 컵라면의 전체 재고 6 남음
+    store.reduceStockBy("컵라면", 5, false); // 컵라면의 전체 재고 6 남음
 
     // then
-    expect(convenienceStore.isInStock("컵라면", 5)).toBe(true);
-    expect(convenienceStore.isInStock("컵라면", 9)).toBe(false);
+    expect(store.isInStock("컵라면", 5)).toBe(true);
+    expect(store.isInStock("컵라면", 9)).toBe(false);
   });
 
   test("제품 가격 계산", async () => {
     // given
-    await convenienceStore.init();
+    await store.init();
 
     // when, then
-    expect(convenienceStore.calculatePrice("에너지바", 3)).toBe(6000);
-    expect(convenienceStore.calculatePrice("콜라", 5)).toBe(5000);
+    expect(store.calculatePrice("에너지바", 3)).toBe(6000);
+    expect(store.calculatePrice("콜라", 5)).toBe(5000);
   });
 
   test("상품 수량 프로모션 재고랑 비교", async () => {
-    await convenienceStore.init();
+    await store.init();
 
-    expect(convenienceStore.compareWithPromoStock("오렌지주스", 1)).toBe(8);
+    expect(store.compareWithPromoStock("오렌지주스", 1)).toBe(8);
   });
 });

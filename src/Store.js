@@ -3,7 +3,7 @@ import { getDataFromFile } from "./util.js";
 import OutputView from "./View/OutputView.js";
 import InputView from "./View/InputView.js";
 
-class ConvenienceStore {
+class Store {
   #inventory;
   #promotion;
 
@@ -89,4 +89,4 @@ class ConvenienceStore {
   }
 }
 
-export default ConvenienceStore;
+export default Store;

@@ -1,27 +1,27 @@
 import Cashier from "./Cashier.js";
-import ConvenienceStore from "./ConvenienceStore.js";
+import Store from "./Store.js";
 import Customer from "./Customer.js";
 import OutputView from "./View/OutputView.js";
 
 class App {
-  #convenienceStore;
+  #store;
   #customer;
   #cashier;
 
   constructor() {
-    this.#convenienceStore = new ConvenienceStore();
+    this.#store = new Store();
     this.#customer = new Customer();
     this.#cashier = new Cashier();
   }
 
   async run() {
-    await this.#convenienceStore.init();
+    await this.#store.init();
     await this.#buyingProcess();
   }
 
   async #customerBuyProduct() {
     try {
-      await this.#customer.buy(this.#convenienceStore);
+      await this.#customer.buy(this.#store);
     } catch (error) {
       OutputView.printMessage(error.message);
       await this.#customerBuyProduct();
@@ -29,7 +29,7 @@ class App {
   }
 
   async #buyingProcess() {
-    this.#convenienceStore.printWelcomeAndInventory();
+    this.#store.printWelcomeAndInventory();
 
     await this.#customerBuyProduct();
 
@@ -37,16 +37,16 @@ class App {
       this.#cashier.checkout({
         productName,
         productCount,
-        convenienceStore: this.#convenienceStore,
+        store: this.#store,
       });
     });
 
     this.#cashier.askMembershipDiscount();
 
-    const receipt = this.#cashier.getReceipt(this.#convenienceStore);
+    const receipt = this.#cashier.getReceipt(this.#store);
     OutputView.printMessage(receipt);
 
-    const restart = await this.#convenienceStore.askRestart();
+    const restart = await this.#store.askRestart();
     if (restart) await this.#buyingProcess();
   }
 }
