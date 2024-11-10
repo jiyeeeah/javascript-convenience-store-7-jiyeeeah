@@ -79,6 +79,6 @@ describe("구매할 상품과 수량 입력 테스트", () => {
 
     await customer.buy(store);
 
-    expect(customer.buyingProductCount).toEqual(new Map([["콜라", 3]]));
+    expect(customer.buyingProductsCount).toEqual(new Map([["콜라", 3]]));
   });
 });

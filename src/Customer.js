@@ -3,7 +3,7 @@ import InputView from "./View/InputView.js";
 import { isInputWrappedWith, splitString } from "./util.js";
 
 class Customer {
-  #buyingProductCount = new Map();
+  #buyingProductsCount = new Map();
 
   async buy(store) {
     const customerInput = await InputView.readItem();
@@ -13,7 +13,7 @@ class Customer {
     products.forEach((product) => {
       const { name, count } = this.#getValidatedProductInfo(product);
       this.#validateProduct(name, count, store);
-      this.#buyingProductCount.set(name, count);
+      this.#buyingProductsCount.set(name, count);
     });
   }
 
@@ -33,8 +33,8 @@ class Customer {
     if (!store.isInStock(name, count)) throw new Error(ERROR_MESSAGE.productOverStock);
   }
 
-  get buyingProductCount() {
-    return new Map(this.#buyingProductCount);
+  get buyingProductsCount() {
+    return new Map(this.#buyingProductsCount);
   }
 }
 
