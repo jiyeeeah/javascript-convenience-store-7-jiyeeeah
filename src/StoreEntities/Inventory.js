@@ -6,6 +6,17 @@ class Inventory {
   async init() {
     const data = await getDataFromFile("./public/products.md");
     this.#inventory = parseDataToObjects(data);
+    this.#inventory.forEach((product, index) => {
+      if (product.promotion !== null && !this.getProductInfo(product.name, false)) {
+        const normalNoStockInventory = {
+          name: product.name,
+          price: product.price,
+          quantity: 0,
+          promotion: "null",
+        };
+        this.#inventory.splice(index + 1, 0, normalNoStockInventory);
+      }
+    });
   }
 
   getInventoryDetailsString() {
