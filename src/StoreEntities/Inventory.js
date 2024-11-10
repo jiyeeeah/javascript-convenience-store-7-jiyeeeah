@@ -31,6 +31,14 @@ class Inventory {
     const totalQuantity = filteredProducts.reduce((acc, product) => acc + product.quantity, 0);
     return totalQuantity >= count;
   }
+
+  getProductInfo(productName, isPromo) {
+    return this.#inventory.filter(
+      (product) =>
+        product.name === productName &&
+        ((!isPromo && product.promotion === "null") || (isPromo && product.promotion !== "null")),
+    )[0];
+  }
 }
 
 export default Inventory;

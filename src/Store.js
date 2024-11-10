@@ -30,20 +30,12 @@ class Store {
   }
 
   compareWithPromoStock(name, count) {
-    const productInfo = this.#getProductInfoFromInventory(name, true);
+    const productInfo = this.#inventory.getProductInfo(name, true);
     return productInfo.quantity - count;
   }
 
-  #getProductInfoFromInventory(productName, isPromo) {
-    return this.#inventory.filter(
-      (product) =>
-        product.name === productName &&
-        ((!isPromo && product.promotion === "null") || (isPromo && product.promotion !== "null")),
-    )[0];
-  }
-
   getApplicablePromotion(productName) {
-    const promoProductInfo = this.#getProductInfoFromInventory(productName, true);
+    const promoProductInfo = this.#inventory.getProductInfo(productName, true);
     if (!promoProductInfo) return null;
 
     const productPromotionName = promoProductInfo.promotion;
@@ -65,7 +57,7 @@ class Store {
   }
 
   calculatePrice(name, count) {
-    const productInfo = this.#getProductInfoFromInventory(name, false);
+    const productInfo = this.#inventory.getProductInfo(name, false);
     const productPrice = productInfo.price;
 
     return productPrice * count;
