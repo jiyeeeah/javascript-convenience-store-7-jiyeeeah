@@ -1,15 +1,16 @@
 import { MissionUtils } from "@woowacourse/mission-utils";
-import { getDataFromFile } from "./util.js";
 import OutputView from "./View/OutputView.js";
 import InputView from "./View/InputView.js";
 import Promotion from "./StoreEntities/Promotion.js";
+import Inventory from "./StoreEntities/Inventory.js";
 
 class Store {
   #inventory;
   #promotion;
 
   async init() {
-    this.#inventory = await getDataFromFile("./public/products.md");
+    this.#inventory = new Inventory();
+    await this.#inventory.init();
 
     this.#promotion = new Promotion();
     await this.#promotion.init();
@@ -17,9 +18,7 @@ class Store {
 
   printWelcomeAndInventory() {
     OutputView.printWelcome();
-    this.#inventory.forEach((product) => {
-      OutputView.printInventory(product);
-    });
+    OutputView.printMessage(this.#inventory.getInventoryDetailsString());
   }
 
   isExistInInventory(name) {
