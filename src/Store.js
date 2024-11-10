@@ -48,12 +48,7 @@ class Store {
   }
 
   reduceStockBy(name, count, isPromo) {
-    this.#inventory.forEach((product) => {
-      if (product.name !== name) return;
-      if ((isPromo && product.promotion === "null") || (!isPromo && product.promotion !== "null"))
-        return;
-      product.quantity -= count;
-    });
+    this.#inventory.reduceStock(name, count, isPromo);
   }
 
   calculatePrice(name, count) {
