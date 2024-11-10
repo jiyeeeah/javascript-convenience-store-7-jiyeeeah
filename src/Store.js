@@ -149,6 +149,37 @@ class Store {
     await this.#cashier.askMembershipDiscount();
   }
 
+  getReceipt() {
+    let purchasedProductString = "";
+    let purchasedTotalCount = 0;
+    const purchasedProducts = this.#cashier.getPurchasedProduct();
+    purchasedProducts.forEach((productCount, productName) => {
+      purchasedProductString += `${productName}     ${productCount}     ${this.#inventory.calculatePrice(productName, productCount).toLocaleString()}\n`;
+      purchasedTotalCount += productCount;
+    });
+
+    let promotionProductString = "";
+    const giveAwayProducts = this.#cashier.getGiveAwayProduct();
+    giveAwayProducts.forEach((productCount, productName) => {
+      promotionProductString += `${productName}   ${productCount}\n`;
+    });
+
+    const totalPayment = this.#cashier.getTotalPayment();
+
+    const paymentResult = this.#cashier.getPaymentResult();
+
+    return `==============W 편의점================
+상품명		수량	금액
+${purchasedProductString}
+=============증	정===============
+${promotionProductString}
+====================================
+총구매액		${purchasedTotalCount}	${totalPayment.toLocaleString()}
+행사할인			-${this.#cashier.getPromotionDiscount().toLocaleString()}
+멤버십할인			-${this.#cashier.getMembershipDiscount().toLocaleString()}
+내실돈			 ${paymentResult.toLocaleString()}`;
+  }
+
   async askRestart() {
     try {
       const answer = await InputView.askBuyAgain();

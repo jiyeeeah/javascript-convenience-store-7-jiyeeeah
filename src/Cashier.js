@@ -39,16 +39,17 @@ class Cashier {
     return new Map(this.#purchasedProduct);
   }
 
-  getPromotionProduct() {
+  getGiveAwayProduct() {
     return new Map(this.#giveAwayProduct);
   }
 
-  getTotalPurchaseAmount() {
-    return this.#payment.normalPaymentTotal;
+  getTotalPayment() {
+    return this.#payment.normalPaymentTotal + this.#payment.promotionAppliedPaymentTotal;
   }
 
-  getPromotionAppliedAmount() {
-    return this.#payment.promotionAppliedPaymentTotal;
+  getPaymentResult() {
+    const totalPayment = this.getTotalPayment();
+    return totalPayment - this.#payment.promotionDiscount - this.#payment.membershipDiscount;
   }
 
   getPromotionDiscount() {
@@ -93,36 +94,6 @@ class Cashier {
 
   #membershipDiscount() {
     this.#payment.membershipDiscount += this.#payment.normalPaymentTotal * 0.3;
-  }
-
-  getReceipt(store) {
-    let purchasedProductString = "";
-    let purchasedTotalCount = 0;
-    this.#purchasedProduct.forEach((productCount, productName) => {
-      purchasedProductString += `${productName}     ${productCount}     ${store.calculatePrice(productName, productCount).toLocaleString()}\n`;
-      purchasedTotalCount += productCount;
-    });
-
-    let promotionProductString = "";
-    this.#giveAwayProduct.forEach((productCount, productName) => {
-      promotionProductString += `${productName}   ${productCount}\n`;
-    });
-
-    const totalPayment =
-      this.#payment.normalPaymentTotal + this.#payment.promotionAppliedPaymentTotal;
-    const paymentResult =
-      totalPayment - this.#payment.promotionDiscount - this.#payment.membershipDiscount;
-
-    return `==============W 편의점================
-상품명		수량	금액
-${purchasedProductString}
-=============증	정===============
-${promotionProductString}
-====================================
-총구매액		${purchasedTotalCount}	${totalPayment.toLocaleString()}
-행사할인			-${this.#payment.promotionDiscount.toLocaleString()}
-멤버십할인			-${this.#payment.membershipDiscount.toLocaleString()}
-내실돈			 ${paymentResult.toLocaleString()}`;
   }
 }
 

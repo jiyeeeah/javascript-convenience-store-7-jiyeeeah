@@ -186,4 +186,28 @@ describe("Store 테스트", () => {
     expect(store.isInStock("오렌지주스", 8)).toBe(true);
     expect(store.isInStock("오렌지주스", 9)).toBe(false);
   });
+
+  test("영수증 출력 테스트", async () => {
+    // given
+    await store.init();
+    const purchaseProduct = [
+      ["콜라", 3],
+      ["에너지바", 5],
+    ]; // 1+1인데 한개만 가져옴
+    await store.checkout(new Map(purchaseProduct));
+
+    // when
+    mockQuestions(["Y"]); // 멤버십 적용
+    await store.askMembershipDiscount();
+
+    // then
+    const receipt = store.getReceipt(store);
+    expect(receipt).toMatch(/콜라\s+3\s+3,000/);
+    expect(receipt).toMatch(/에너지바\s+5\s+10,000/);
+    expect(receipt).toMatch(/콜라\s+1/);
+    expect(receipt).toMatch(/총구매액\s+8\s+13,000/);
+    expect(receipt).toMatch(/행사할인\s+-3,000/);
+    expect(receipt).toMatch(/멤버십할인\s+-3,000/);
+    expect(receipt).toMatch(/내실돈\s+7,000/);
+  });
 });
