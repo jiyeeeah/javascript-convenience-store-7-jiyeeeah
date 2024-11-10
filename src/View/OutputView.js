@@ -7,11 +7,11 @@ const OutputView = {
 
   printInventory(product) {
     let stockString = "재고 없음";
-    if (Number(product.quantity) > 0) stockString = `${product.quantity}개`;
+    if (product.quantity > 0) stockString = `${product.quantity}개`;
     let promotionString = ` ${product.promotion}`;
     if (product.promotion === "null") promotionString = "";
     MissionUtils.Console.print(
-      `- ${product.name} ${Number(product.price).toLocaleString()}원 ${stockString}${promotionString}`,
+      `- ${product.name} ${product.price.toLocaleString()}원 ${stockString}${promotionString}`,
     );
   },
 

@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 import fs from "fs";
 
+const isNumber = (num) => !Number.isNaN(Number(num));
+
 export const getDataFromFile = (filePath) => {
   const result = fs.readFileSync(filePath, "utf8", (err, data) => {
     if (err) {
@@ -14,7 +16,8 @@ export const getDataFromFile = (filePath) => {
   const products = lines.slice(1).map((line) => {
     const values = line.split(","); // 각 줄을 ','로 분리
     return keys.reduce((object, key, index) => {
-      object[key] = values[index];
+      if (isNumber(values[index])) object[key] = Number(values[index]);
+      else object[key] = values[index];
       return object;
     }, {});
   });

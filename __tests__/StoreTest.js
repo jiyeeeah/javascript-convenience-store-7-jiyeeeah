@@ -84,15 +84,15 @@ describe("Store 테스트", () => {
     // then
     expect(store.getApplicablePromotion("콜라")).toEqual({
       name: "탄산2+1",
-      buy: "2",
-      get: "1",
+      buy: 2,
+      get: 1,
       start_date: "2024-01-01",
       end_date: "2024-12-31",
     });
     expect(store.getApplicablePromotion("오렌지주스")).toEqual({
       name: "MD추천상품",
-      buy: "1",
-      get: "1",
+      buy: 1,
+      get: 1,
       start_date: "2024-01-01",
       end_date: "2024-12-31",
     });

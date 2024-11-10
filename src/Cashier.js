@@ -23,7 +23,7 @@ class Cashier {
     }
 
     const { buy, get } = applicablePromotion;
-    const totalPromotionCount = Number(buy) + Number(get);
+    const totalPromotionCount = buy + get;
     let totalProductCount = productCount;
     let promotionAppliedCount = productCount;
 
@@ -49,7 +49,7 @@ class Cashier {
 
     let promotionCount = Math.floor(promotionAppliedCount / totalPromotionCount);
     // 프로모션 적용 가능한 상품에 대해 고객이 해당 수량보다 적게 가져온 경우
-    if (productCount % totalPromotionCount === Number(buy) && restCount > 0) {
+    if (productCount % totalPromotionCount === buy && restCount > 0) {
       const addPromoProduct = await this.#askIfAddPromoProduct(productName);
       if (addPromoProduct) {
         promotionCount += 1;
