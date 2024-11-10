@@ -1,7 +1,7 @@
 import Store from "./Store.js";
 import Customer from "./Customer.js";
 import OutputView from "./View/OutputView.js";
-import Cashier from "./StoreEntities/Cashier.js";
+import Cashier from "./Cashier.js";
 
 class App {
   #store;

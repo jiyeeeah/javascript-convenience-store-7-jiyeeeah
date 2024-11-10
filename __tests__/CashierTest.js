@@ -1,5 +1,5 @@
 import { MissionUtils } from "@woowacourse/mission-utils";
-import Cashier from "../src/StoreEntities/Cashier.js";
+import Cashier from "../src/Cashier.js";
 import Store from "../src/Store.js";
 
 const mockNowDate = (date = null) => {

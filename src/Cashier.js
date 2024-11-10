@@ -1,6 +1,6 @@
-import InputView from "../View/InputView.js";
-import OutputView from "../View/OutputView.js";
-import { getPromotionCount } from "../util.js";
+import InputView from "./View/InputView.js";
+import OutputView from "./View/OutputView.js";
+import { getPromotionCount } from "./util.js";
 
 class Cashier {
   #purchasedProduct;
