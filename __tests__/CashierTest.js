@@ -91,14 +91,35 @@ describe("Cashier 클래스 테스트", () => {
   test("멤버십 할인 적용 여부 테스트 - 적용하는 경우", async () => {
     // given
     await store.init();
-    await cashier.checkout({ productName: "콜라", productCount: 3, store });
-    await cashier.checkout({ productName: "에너지바", productCount: 5, store });
+    const normalPurchase = {
+      productName: "에너지바",
+      productCount: 5,
+      productTotalPrice: 10000,
+    };
+    const promotionPurchase = {
+      productName: "콜라",
+      promotionAppliedCount: 3,
+      giveAwayCount: 1,
+      promotionAppliedTotalPrice: 3000,
+      promotionDiscount: 1000,
+    };
+    cashier.processPayment(normalPurchase);
+    cashier.processPaymentWithPromo(promotionPurchase);
 
     // when
     mockQuestions(["Y"]); // 멤버십 적용
     await cashier.askMembershipDiscount();
 
     // then
+    expect(cashier.getPurchasedProduct()).toEqual(
+      new Map([
+        ["에너지바", 5],
+        ["콜라", 3],
+      ]),
+    );
+    expect(cashier.getPromotionProduct()).toEqual(new Map([["콜라", 1]])); // 증정 상품 내역 : 1개
+    expect(cashier.getPromotionAppliedAmount()).toBe(3000); // 프로모션 적용 총 구매 액
+    expect(cashier.getPromotionDiscount()).toBe(1000); // 할인 금액
     expect(cashier.getMembershipDiscount()).toBe(3000);
   });
 

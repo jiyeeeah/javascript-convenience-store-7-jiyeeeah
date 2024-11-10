@@ -35,7 +35,7 @@ class App {
 
     await this.#store.checkout(this.#customer.buyingProductsCount);
 
-    await this.#cashier.askMembershipDiscount();
+    await this.#store.askMembershipDiscount();
 
     const receipt = this.#cashier.getReceipt(this.#store);
     OutputView.printMessage(receipt);

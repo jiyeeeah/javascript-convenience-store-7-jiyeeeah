@@ -85,10 +85,9 @@ class Cashier {
       if (answer === "Y") {
         this.#membershipDiscount();
       }
-      return answer === "Y";
     } catch (error) {
       OutputView.printMessage(error.message);
-      return this.askMembershipDiscount();
+      await this.askMembershipDiscount();
     }
   }
 

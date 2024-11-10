@@ -145,6 +145,10 @@ class Store {
     });
   }
 
+  async askMembershipDiscount() {
+    await this.#cashier.askMembershipDiscount();
+  }
+
   async askRestart() {
     try {
       const answer = await InputView.askBuyAgain();
