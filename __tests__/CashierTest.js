@@ -35,96 +35,57 @@ describe("Cashier 클래스 테스트", () => {
 
   test("에너지바 2개 결제", async () => {
     // given
-    await store.init();
+    const paymentTarget = { productName: "에너지바", productCount: 2, productTotalPrice: 4000 };
 
     // when
-    cashier.checkout({ productName: "에너지바", productCount: 2, store }); // 에너지바 재고 3개 남음
+    cashier.processPayment(paymentTarget);
 
     // then
-    expect(store.isInStock("에너지바", 3)).toBe(true);
-    expect(store.isInStock("에너지바", 5)).toBe(false);
+    expect(cashier.getPurchasedProduct()).toEqual(new Map([["에너지바", 2]]));
+    expect(cashier.getTotalPurchaseAmount()).toBe(4000);
   });
 
   test("프로모션 해당 없는 경우", async () => {
     // given
-    await store.init();
-    mockNowDate("2024-02-01"); // 반짝할인은 적용 안됨. 나머지는 적용됨
+    const paymentTargets = [
+      { productName: "감자칩", productCount: 3, productTotalPrice: 4500 },
+      { productName: "정식도시락", productCount: 1, productTotalPrice: 6400 },
+    ];
+    mockNowDate("2024-02-01"); // 반짝할인(감자칩)은 적용 안됨. 나머지는 적용됨
 
     // when
-    cashier.checkout({ productName: "감자칩", productCount: 3, store }); // 4500원, 재고 7개 남음
-    cashier.checkout({ productName: "정식도시락", productCount: 1, store }); // 6400원, 재고 7개 남음
+    paymentTargets.forEach((target) => {
+      cashier.processPayment(target);
+    });
 
     // then
-    expect(cashier.getPurchaseProducts()).toEqual(
+    expect(cashier.getPurchasedProduct()).toEqual(
       new Map([
         ["감자칩", 3],
         ["정식도시락", 1],
       ]),
     );
     expect(cashier.getTotalPurchaseAmount()).toBe(10900);
-    expect(store.isInStock("감자칩", 7)).toBe(true);
-    expect(store.isInStock("정식도시락", 7)).toBe(true);
   });
 
-  test("프로모션 적용 가능한 상품에 대해 고객이 해당 수량보다 적게 가져온 경우 - 증정 받을 수 있는 상품 추가", async () => {
+  test("프로모션 1 + 1 상품 구매", async () => {
     // given
-    await store.init();
+    const paymentTarget = {
+      productName: "오렌지주스",
+      promotionAppliedCount: 2,
+      giveAwayCount: 1,
+      promotionAppliedTotalPrice: 3600,
+      promotionDiscount: 1800,
+    };
 
     // when
-    mockQuestions(["Y"]); // 증정 상품 추가
-    await cashier.checkout({ productName: "오렌지주스", productCount: 1, store }); // 1+1인데 한개만 가져옴
+    cashier.processPaymentWithPromo(paymentTarget);
 
     // then
-    expect(cashier.getPurchaseProducts()).toEqual(new Map([["오렌지주스", 2]])); // 상품 구매 내역 : 2개
+    expect(cashier.getPurchasedProduct()).toEqual(new Map([["오렌지주스", 2]])); // 상품 구매 내역 : 2개
     expect(cashier.getPromotionProduct()).toEqual(new Map([["오렌지주스", 1]])); // 증정 상품 내역 : 1개
     expect(cashier.getPromotionAppliedAmount()).toBe(3600); // 프로모션 적용 총 구매 액
     expect(cashier.getPromotionDiscount()).toBe(1800); // 할인 금액
-  });
-
-  test("프로모션 적용 가능한 상품에 대해 고객이 해당 수량보다 적게 가져온 경우 - 증정 받을 수 있는 상품 추가하지 않음", async () => {
-    // given
-    await store.init();
-
-    // when
-    mockQuestions(["N"]); // 증정 상품 추가 하지 않음
-    await cashier.checkout({ productName: "오렌지주스", productCount: 1, store }); // 1+1인데 한개만 가져옴
-
-    // then
-    expect(cashier.getPurchaseProducts()).toEqual(new Map([["오렌지주스", 1]])); // 상품 구매 내역 : 2개
-    expect(cashier.getPromotionProduct()).toEqual(new Map()); // 증정 상품 내역 : 1개
-    expect(cashier.getPromotionAppliedAmount()).toBe(1800); // 프로모션 적용 총 구매 액
-    expect(cashier.getPromotionDiscount()).toBe(0); // 할인 금액
-  });
-
-  test("프로모션 재고가 부족해서 일부 수량을 프로모션 혜택 없이 결제해야 하는 경우 - 일부 수량에 대해 정가로 결제", async () => {
-    // given
-    await store.init();
-
-    // when
-    mockQuestions(["Y"]); // 일부 수량에 대해 정가로 결제
-    await cashier.checkout({ productName: "사이다", productCount: 10, store }); // 사이다 프로모션 재고 8개밖에 없음
-
-    // then
-    expect(cashier.getPurchaseProducts()).toEqual(new Map([["사이다", 10]])); // 상품 구매 내역 : 10개
-    expect(cashier.getPromotionProduct()).toEqual(new Map([["사이다", 2]])); // 증정 상품 내역 : 2개
-    expect(cashier.getPromotionAppliedAmount()).toBe(6000); // 프로모션 적용 총 구매 액
-    expect(cashier.getTotalPurchaseAmount()).toBe(4000); // 프로모션 미 적용 총 구매 액
-    expect(cashier.getPromotionDiscount()).toBe(2000); // 할인 금액
-  });
-
-  test("프로모션 재고가 부족해서 일부 수량을 프로모션 혜택 없이 결제해야 하는 경우 - 정가로 결제해야 하는 수량 제외하고 결제", async () => {
-    // given
-    await store.init();
-
-    // when
-    mockQuestions(["N"]); // 정가로 결제해야 하는 수량 제외하고 결제
-    await cashier.checkout({ productName: "사이다", productCount: 10, store }); // 사이다 프로모션 재고 8개밖에 없음
-
-    // then
-    expect(cashier.getPurchaseProducts()).toEqual(new Map([["사이다", 8]])); // 상품 구매 내역 : 8개
-    expect(cashier.getPromotionProduct()).toEqual(new Map([["사이다", 2]])); // 증정 상품 내역 : 2개
-    expect(cashier.getPromotionAppliedAmount()).toBe(8000); // 프로모션 적용 총 구매 액
-    expect(cashier.getPromotionDiscount()).toBe(2000); // 할인 금액
   });
 
   test("멤버십 할인 적용 여부 테스트 - 적용하는 경우", async () => {

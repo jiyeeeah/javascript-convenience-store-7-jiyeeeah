@@ -33,13 +33,7 @@ class App {
 
     await this.#customerBuyProduct();
 
-    this.#customer.buyingProductCount.forEach(async (productCount, productName) => {
-      await this.#cashier.checkout({
-        productName,
-        productCount,
-        store: this.#store,
-      });
-    });
+    await this.#store.checkout(this.#customer.buyingProductsCount);
 
     await this.#cashier.askMembershipDiscount();
 

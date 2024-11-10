@@ -7,6 +7,11 @@ export const splitString = (input, separator) => input.split(separator);
 export const isInputWrappedWith = (input, wrapper) =>
   input[0] === wrapper[0] && input[input.length - 1] === wrapper[1];
 
+export const getPromotionCount = (productCount, promoBundleSize, restCount = null) => {
+  if (restCount) return Math.floor((productCount + restCount) / promoBundleSize);
+  return Math.floor(productCount / promoBundleSize);
+};
+
 export const getDataFromFile = async (filePath) =>
   fs.readFileSync(filePath, "utf8", (err, data) => {
     if (err) {

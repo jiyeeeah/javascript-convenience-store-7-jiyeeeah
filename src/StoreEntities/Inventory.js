@@ -48,6 +48,13 @@ class Inventory {
       product.quantity -= count;
     });
   }
+
+  calculatePrice(name, count) {
+    const productInfo = this.getProductInfo(name, false);
+    const productPrice = productInfo.price;
+
+    return productPrice * count;
+  }
 }
 
 export default Inventory;
