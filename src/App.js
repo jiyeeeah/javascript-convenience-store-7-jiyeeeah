@@ -6,12 +6,10 @@ class App {
   #store;
   #customer;
 
-  constructor() {
+  async run() {
     this.#store = new Store();
     this.#customer = new Customer();
-  }
 
-  async run() {
     await this.#store.init();
     await this.#buyingProcess();
   }
@@ -38,7 +36,7 @@ class App {
     OutputView.printMessage(receipt);
 
     const restart = await this.#store.askRestart();
-    if (restart) await this.#buyingProcess();
+    if (restart) await this.run();
   }
 }
 
