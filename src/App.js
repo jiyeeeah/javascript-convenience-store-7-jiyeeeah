@@ -1,16 +1,20 @@
 import Store from "./Store.js";
 import Customer from "./Customer.js";
 import OutputView from "./View/OutputView.js";
+import Cashier from "./StoreEntities/Cashier.js";
 
 class App {
   #store;
   #customer;
+  #cashier;
+
+  constructor() {
+    this.#store = new Store();
+  }
 
   async run() {
-    this.#store = new Store();
-    this.#customer = new Customer();
-
     await this.#store.init();
+
     await this.#buyingProcess();
   }
 
@@ -24,19 +28,22 @@ class App {
   }
 
   async #buyingProcess() {
+    this.#customer = new Customer();
+    this.#cashier = new Cashier();
+
     this.#store.printWelcomeAndInventory();
 
     await this.#customerBuyProduct();
 
-    await this.#store.checkout(this.#customer.buyingProductsCount);
+    await this.#cashier.checkout(this.#customer.buyingProductsCount, this.#store);
 
-    await this.#store.askMembershipDiscount();
+    await this.#cashier.askMembershipDiscount();
 
-    const receipt = this.#store.getReceipt(this.#store);
+    const receipt = this.#cashier.getReceipt(this.#store);
     OutputView.printMessage(receipt);
 
     const restart = await this.#store.askRestart();
-    if (restart) await this.run();
+    if (restart) await this.#buyingProcess();
   }
 }
 
