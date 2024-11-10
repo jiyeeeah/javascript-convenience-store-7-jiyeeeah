@@ -4,7 +4,7 @@ import InputView from "./View/InputView.js";
 import Promotion from "./StoreEntities/Promotion.js";
 import Inventory from "./StoreEntities/Inventory.js";
 import { getPromotionCount } from "./util.js";
-import Cashier from "./Cashier.js";
+import Cashier from "./StoreEntities/Cashier.js";
 
 class Store {
   #inventory;

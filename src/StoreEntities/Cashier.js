@@ -1,5 +1,5 @@
-import InputView from "./View/InputView.js";
-import OutputView from "./View/OutputView.js";
+import InputView from "../View/InputView.js";
+import OutputView from "../View/OutputView.js";
 
 class Cashier {
   #purchasedProduct;
