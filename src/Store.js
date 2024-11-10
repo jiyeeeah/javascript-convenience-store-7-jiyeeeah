@@ -46,16 +46,14 @@ class Store {
   }
 
   getApplicablePromotion(productName) {
-    const today = MissionUtils.DateTimes.now();
-
     const promoProductInfo = this.#getProductInfoFromInventory(productName, true);
-    if (!promoProductInfo) return undefined;
+    if (!promoProductInfo) return null;
 
     const productPromotionName = promoProductInfo.promotion;
-
     const promotionInfo = this.#promotion.getPromotionByName(productPromotionName);
-    if (today < new Date(promotionInfo.start_date) || today > new Date(promotionInfo.end_date))
-      return undefined;
+
+    const today = MissionUtils.DateTimes.now();
+    if (!this.#promotion.isAvailable(productPromotionName, today)) return null;
 
     return promotionInfo;
   }

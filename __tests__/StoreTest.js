@@ -96,8 +96,8 @@ describe("Store 테스트", () => {
       start_date: "2024-01-01",
       end_date: "2024-12-31",
     });
-    expect(store.getApplicablePromotion("감자칩")).toBeUndefined();
-    expect(store.getApplicablePromotion("에너지바")).toBeUndefined();
+    expect(store.getApplicablePromotion("감자칩")).toBeNull();
+    expect(store.getApplicablePromotion("에너지바")).toBeNull();
   });
 
   test("제품 수량 줄이는 메서드 테스트", async () => {
