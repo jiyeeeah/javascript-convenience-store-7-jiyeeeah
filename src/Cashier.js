@@ -27,6 +27,32 @@ class Cashier {
       await this.#checkoutStockShortage({ productName, productCount, store, restCount });
       return;
     }
+    await this.#checkoutPromotionShortage({ productName, productCount, store });
+  }
+
+  async #checkoutStockShortage({ productName, productCount, store, restCount }) {
+    const { promoBundleSize } = store.getPromoBundle(productName);
+    const giveAwayCount = getPromotionCount(productCount, promoBundleSize, restCount);
+    const promoAppliedNum = giveAwayCount * promoBundleSize;
+
+    const promotionDetails = { productName, productCount, promoAppliedNum };
+    const promotionAppliedCount = await this.#getPromotionAppliedCount(promotionDetails, store);
+    this.#processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
+  }
+
+  async #getPromotionAppliedCount({ productName, productCount, promoAppliedNum }, store) {
+    const restProductCount = productCount - promoAppliedNum;
+    const ifPayWithoutPromo = await this.#askPayWithoutPromo(productName, restProductCount);
+
+    if (ifPayWithoutPromo) {
+      this.#processPaymentWithoutPromo({ productName, productCount: restProductCount, store });
+      return promoAppliedNum;
+    }
+    return productCount - restProductCount;
+  }
+
+  async #checkoutPromotionShortage({ productName, productCount, store }) {
+    const restCount = store.compareWithPromoStock(productName, productCount);
     const { buy, get, promoBundleSize } = store.getPromoBundle(productName);
     if (isPromotionShortage({ buy, get, promoBundleSize, productCount, restCount })) {
       await this.#checkoutPromoShortage({ productName, productCount, promoBundleSize, store });
@@ -35,42 +61,20 @@ class Cashier {
     this.#checkoutPromoNoCondition({ productName, productCount, promoBundleSize, store });
   }
 
-  async #checkoutStockShortage({ productName, productCount, store, restCount }) {
-    const { promoBundleSize } = store.getPromoBundle(productName);
-    const { giveAwayCount, promoAppliedNum, restProductCount } = this.#calculatePromotionCounts({
-      promoBundleSize,
-      productCount,
-      restCount,
-    });
-    let promotionAppliedCount = promoAppliedNum;
-    const ifPayWithoutPromo = await this.#askPayWithoutPromo(productName, restProductCount);
-    if (ifPayWithoutPromo) {
-      this.#processPaymentWithoutPromo({ productName, productCount: restProductCount, store });
-    } else {
-      promotionAppliedCount = productCount - restProductCount;
-    }
-    this.#processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
-  }
-
-  #calculatePromotionCounts({ promoBundleSize, productCount, restCount }) {
-    const giveAwayCount = getPromotionCount(productCount, promoBundleSize, restCount);
-    const promoAppliedNum = giveAwayCount * promoBundleSize;
-    const restProductCount = productCount - promoAppliedNum;
-
-    return { giveAwayCount, promoAppliedNum, restProductCount };
-  }
-
   async #checkoutPromoShortage({ productName, productCount, promoBundleSize, store }) {
     const promotionCount = getPromotionCount(productCount, promoBundleSize);
-    let promotionAppliedCount = productCount;
-    let giveAwayCount = promotionCount;
+    const promotionDetails = { productName, productCount, promotionCount };
+    const { promotionAppliedCount, giveAwayCount } =
+      await this.#getPromotionCount(promotionDetails);
+    this.#processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
+  }
 
+  async #getPromotionCount({ productName, productCount, promotionCount }) {
     const addPromoProduct = await this.#askAddPromoProduct(productName);
     if (addPromoProduct) {
-      promotionAppliedCount += 1;
-      giveAwayCount += 1;
+      return { promotionAppliedCount: productCount + 1, giveAwayCount: promotionCount + 1 };
     }
-    this.#processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
+    return { promotionAppliedCount: productCount, giveAwayCount: promotionCount };
   }
 
   #checkoutPromoNoCondition({ productName, productCount, promoBundleSize, store }) {
