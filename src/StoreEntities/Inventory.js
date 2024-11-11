@@ -8,29 +8,34 @@ class Inventory {
     this.#inventory = parseDataToObjects(data);
     this.#inventory.forEach((product, index) => {
       if (product.promotion !== null && !this.getProductInfo(product.name, false)) {
-        const normalNoStockInventory = {
-          name: product.name,
-          price: product.price,
-          quantity: 0,
-          promotion: "null",
-        };
+        const normalNoStockInventory = Inventory.#createOneProductInfo(product.name, product.price);
         this.#inventory.splice(index + 1, 0, normalNoStockInventory);
       }
     });
   }
 
+  static #createOneProductInfo(name, price) {
+    return { name, price, quantity: 0, promotion: "null" };
+  }
+
   getInventoryDetailsString() {
     return this.#inventory
       .map((product) => {
-        let stockString = "재고 없음";
-        if (product.quantity > 0) stockString = `${product.quantity}개`;
-
-        let promotionString = "";
-        if (product.promotion !== "null") promotionString = ` ${product.promotion}`;
-
+        const stockString = Inventory.#createStockString(product.quantity);
+        const promotionString = Inventory.#createPromotionString(product.promotion);
         return `- ${product.name} ${product.price.toLocaleString()}원 ${stockString}${promotionString}`;
       })
       .join("\n");
+  }
+
+  static #createStockString(quantity) {
+    if (quantity > 0) return `${quantity}개`;
+    return "재고 없음";
+  }
+
+  static #createPromotionString(promotion) {
+    if (promotion === "null") return "";
+    return ` ${promotion}`;
   }
 
   isExistInInventory(name) {
