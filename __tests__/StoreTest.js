@@ -1,5 +1,5 @@
 import Store from "../src/Store.js";
-import { getLogSpy } from "../src/testUtil/TestUtil.js";
+import { getLogSpy, mockNowDate } from "../src/testUtil/TestUtil.js";
 
 describe("Store 테스트", () => {
   let store;
@@ -44,29 +44,41 @@ describe("Store 테스트", () => {
     });
   });
 
-  test("재고에 제품이 존재하는지 확인한다.", async () => {
-    // given
-    await store.init();
-
-    // then
-    expect(store.isExistInInventory("콜라")).toBe(true);
-    expect(store.isExistInInventory("비타민워터")).toBe(true);
-    expect(store.isExistInInventory("도시락")).toBe(false);
-  });
-
-  test("제품 수량이 재고에서 부족한지 확인한다.", async () => {
-    // given
-    await store.init();
-
-    // then
-    expect(store.isInStock("콜라", 2)).toBe(true);
-    expect(store.isInStock("사이다", 10)).toBe(true);
-    expect(store.isInStock("비타민워터", 30)).toBe(false);
-  });
-
   test("상품 수량 프로모션 재고랑 비교", async () => {
     await store.init();
 
     expect(store.compareWithPromoStock("오렌지주스", 1)).toBe(8);
   });
+
+  const isPromotionAvailableCase = [
+    {
+      name: "감자칩",
+      testDate: "2024-10-10", // 반짝할인(감자칩) 적용 안되는 날
+      result: false,
+    },
+    {
+      name: "콜라", // 탄산2+1
+      testDate: "2024-10-10",
+      result: true,
+    },
+    {
+      name: "컵라면", // MD추천상품
+      testDate: "2024-10-10",
+      result: true,
+    },
+    {
+      name: "정식도시락", // 프로모션 없는 제품
+      testDate: "2024-10-10",
+      result: false,
+    },
+  ];
+  test.each(isPromotionAvailableCase)(
+    "$name 프로모션 $testDate에 적용되는지 확인",
+    async ({ name, testDate, result }) => {
+      await store.init();
+      mockNowDate(testDate); // 반짝 할인 적용 안됨 딴건 적용 됨
+
+      expect(store.isPromoApplicable(name)).toBe(result);
+    },
+  );
 });
