@@ -42,7 +42,6 @@ describe("Cashier 클래스 테스트", () => {
     await cashier.checkout(new Map(purchaseProduct), store);
 
     // then
-    expect(cashier.getPurchasedProduct()).toEqual(new Map([["에너지바", 2]]));
     const receipt = cashier.getReceipt(store);
     expect(receipt).toMatch(/에너지바\s+2\s+4,000/);
     expect(receipt).toMatch(/총구매액\s+2\s+4,000/);
@@ -64,12 +63,6 @@ describe("Cashier 클래스 테스트", () => {
     await cashier.checkout(new Map(purchaseProduct), store);
 
     // then
-    expect(cashier.getPurchasedProduct()).toEqual(
-      new Map([
-        ["감자칩", 3],
-        ["정식도시락", 1],
-      ]),
-    );
     const receipt = cashier.getReceipt(store);
     expect(receipt).toMatch(/감자칩\s+3\s+4,500/);
     expect(receipt).toMatch(/정식도시락\s+1\s+6,400/);
@@ -93,8 +86,6 @@ describe("Cashier 클래스 테스트", () => {
     expect(store.isInStock("사이다", 6)).toBe(false);
     expect(store.compareWithPromoStock("사이다", 2)).toBe(0);
 
-    expect(cashier.getPurchasedProduct()).toEqual(new Map([["사이다", 10]])); // 상품 구매 내역 : 3개
-    expect(cashier.getGiveAwayProduct()).toEqual(new Map([["사이다", 2]])); // 증정 상품 내역 : 1개
     const receipt = cashier.getReceipt(store);
     expect(receipt).toMatch(/사이다\s+10\s+10,000/);
     expect(receipt).toMatch(/사이다\s+2/);
@@ -118,8 +109,6 @@ describe("Cashier 클래스 테스트", () => {
     expect(store.isInStock("사이다", 10)).toBe(false);
     expect(store.compareWithPromoStock("사이다", 2)).toBe(0);
 
-    expect(cashier.getPurchasedProduct()).toEqual(new Map([["사이다", 6]])); // 상품 구매 내역 : 3개
-    expect(cashier.getGiveAwayProduct()).toEqual(new Map([["사이다", 2]])); // 증정 상품 내역 : 1개
     const receipt = cashier.getReceipt(store);
     expect(receipt).toMatch(/사이다\s+6\s+6,000/);
     expect(receipt).toMatch(/사이다\s+2/);
@@ -161,8 +150,6 @@ describe("Cashier 클래스 테스트", () => {
     await cashier.checkout(new Map(purchaseProduct), store);
 
     // then
-    expect(cashier.getPurchasedProduct()).toEqual(new Map([["오렌지주스", 3]])); // 상품 구매 내역 : 3개
-    expect(cashier.getGiveAwayProduct()).toEqual(new Map([["오렌지주스", 1]])); // 증정 상품 내역 : 1개
     const receipt = cashier.getReceipt(store);
     expect(receipt).toMatch(/오렌지주스\s+3\s+5,400/);
     expect(receipt).toMatch(/오렌지주스\s+1/);
@@ -185,13 +172,6 @@ describe("Cashier 클래스 테스트", () => {
     await cashier.checkout(new Map(purchaseProduct), store);
 
     // then
-    expect(cashier.getPurchasedProduct()).toEqual(
-      new Map([
-        ["에너지바", 5],
-        ["콜라", 3],
-      ]),
-    );
-    expect(cashier.getGiveAwayProduct()).toEqual(new Map([["콜라", 1]])); // 증정 상품 내역 : 1개
   });
 
   test("영수증 출력 테스트", async () => {

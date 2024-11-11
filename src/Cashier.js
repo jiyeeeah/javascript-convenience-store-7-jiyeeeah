@@ -1,24 +1,13 @@
+import POS from "./POS.js";
 import InputView from "./View/InputView.js";
 import OutputView from "./View/OutputView.js";
 import { getPromotionCount } from "./util.js";
 
 class Cashier {
-  #purchasedProducts;
-  #giveAwayProducts;
-
-  #paymentTotal;
-  #promotionDiscountTotal;
-  #membershipDiscountTotal;
+  #POS;
 
   constructor() {
-    this.#purchasedProducts = new Map();
-    this.#giveAwayProducts = new Map();
-    this.#paymentTotal = {
-      normalPayment: 0,
-      promotionAppliedPayment: 0,
-    };
-    this.#promotionDiscountTotal = 0;
-    this.#membershipDiscountTotal = 0;
+    this.#POS = new POS();
   }
 
   async checkout(buyingProductsCount, store) {
@@ -65,7 +54,7 @@ class Cashier {
 
   async #checkoutStockShortage({ productName, productCount, store, promoBundleSize, restCount }) {
     const giveAwayCount = getPromotionCount(productCount, promoBundleSize, restCount);
-    const promotionAppliedCount = giveAwayCount * promoBundleSize;
+    let promotionAppliedCount = giveAwayCount * promoBundleSize;
     const restProductCount = productCount - promotionAppliedCount;
 
     const ifPayWithoutPromo = await this.#askPayWithoutPromo(productName, restProductCount);
@@ -76,12 +65,8 @@ class Cashier {
       return;
     }
     // 정가로 결제해야 하는 수량 제외하고 결제
-    this.#processPaymentWithPromo({
-      productName,
-      promotionAppliedCount: productCount - restProductCount,
-      giveAwayCount,
-      store,
-    });
+    promotionAppliedCount = productCount - restProductCount;
+    this.#processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
   }
 
   async #checkoutPromoShortage({ productName, productCount, promotionCount, store }) {
@@ -98,39 +83,17 @@ class Cashier {
 
   #processPaymentWithoutPromo({ productName, productCount, store }) {
     store.reduceStock(productName, productCount, false); // 재고에서 없애기
-    this.#savePaymentInfoWithoutPromo({ productName, productCount, store });
-  }
-
-  #savePaymentInfoWithoutPromo({ productName, productCount, store }) {
-    this.#addPurchasedProductCount(productName, productCount);
-    const productTotalPrice = store.calculatePrice(productName, productCount);
-    this.#paymentTotal.normalPayment += productTotalPrice; // 계산해야 할 total에 저장
+    this.#POS.savePaymentInfoWithoutPromo({ productName, productCount, store });
   }
 
   #processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store }) {
     store.reduceStock(productName, promotionAppliedCount, true); // 재고에서 없애기
-    this.#savePaymentInfoWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
-  }
-
-  #savePaymentInfoWithPromo({ productName, promotionAppliedCount, giveAwayCount, store }) {
-    this.#addPurchasedProductCount(productName, promotionAppliedCount);
-    if (giveAwayCount > 0) this.#giveAwayProducts.set(productName, giveAwayCount);
-    const promotionAppliedTotalPrice = store.calculatePrice(productName, promotionAppliedCount);
-    const promotionDiscount = store.calculatePrice(productName, giveAwayCount);
-    this.#paymentTotal.promotionAppliedPayment += promotionAppliedTotalPrice; // 계산해야 할 total에 저장
-    this.#promotionDiscountTotal += promotionDiscount;
-  }
-
-  #addPurchasedProductCount(name, count) {
-    this.#purchasedProducts.set(name, (this.#purchasedProducts.get(name) ?? 0) + count);
-  }
-
-  getPurchasedProduct() {
-    return new Map(this.#purchasedProducts);
-  }
-
-  getGiveAwayProduct() {
-    return new Map(this.#giveAwayProducts);
+    this.#POS.savePaymentInfoWithPromo({
+      productName,
+      promotionAppliedCount,
+      giveAwayCount,
+      store,
+    });
   }
 
   async #askPayWithoutPromo(productName, productCount) {
@@ -157,7 +120,7 @@ class Cashier {
     try {
       const answer = await InputView.askMembership();
       if (answer === "Y") {
-        this.#membershipDiscount();
+        this.#POS.membershipDiscount();
       }
     } catch (error) {
       OutputView.printMessage(error.message);
@@ -165,38 +128,8 @@ class Cashier {
     }
   }
 
-  #membershipDiscount() {
-    this.#membershipDiscountTotal += this.#paymentTotal.normalPayment * 0.3;
-  }
-
   getReceipt(store) {
-    let purchasedProductString = "";
-    let purchasedTotalCount = 0;
-    this.#purchasedProducts.forEach((productCount, productName) => {
-      purchasedProductString += `${productName}     ${productCount}     ${store.calculatePrice(productName, productCount).toLocaleString()}\n`;
-      purchasedTotalCount += productCount;
-    });
-
-    let promotionProductString = "";
-    this.#giveAwayProducts.forEach((productCount, productName) => {
-      promotionProductString += `${productName}   ${productCount}\n`;
-    });
-
-    const totalPayment =
-      this.#paymentTotal.normalPayment + this.#paymentTotal.promotionAppliedPayment;
-    const paymentResult =
-      totalPayment - this.#promotionDiscountTotal - this.#membershipDiscountTotal;
-
-    return `==============W 편의점================
-상품명		수량	금액
-${purchasedProductString}
-=============증	정===============
-${promotionProductString}
-====================================
-총구매액		${purchasedTotalCount}	${totalPayment.toLocaleString()}
-행사할인			-${this.#promotionDiscountTotal.toLocaleString()}
-멤버십할인			-${this.#membershipDiscountTotal.toLocaleString()}
-내실돈			 ${paymentResult.toLocaleString()}`;
+    return this.#POS.getReceipt(store);
   }
 }
 
