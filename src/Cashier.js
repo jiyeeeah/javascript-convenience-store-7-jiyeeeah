@@ -22,22 +22,17 @@ class Cashier {
   }
 
   async checkout(buyingProductsCount, store) {
-    // eslint-disable-next-line no-restricted-syntax, no-unused-vars
     for (const [productName, productCount] of buyingProductsCount.entries()) {
-      // eslint-disable-next-line no-await-in-loop
-      await this.#checkoutOneProduct(productName, productCount, store);
+      const applicablePromotion = store.getApplicablePromotion(productName);
+      if (!applicablePromotion) {
+        this.#processPaymentWithoutPromo({ productName, productCount, store });
+        continue;
+      }
+      await this.#checkoutWithPromo({ productName, productCount, applicablePromotion, store });
     }
   }
 
-  async #checkoutOneProduct(productName, productCount, store) {
-    const applicablePromotion = store.getApplicablePromotion(productName);
-
-    // 적용할 프로모션이 없는 경우
-    if (!applicablePromotion) {
-      this.#processPaymentWithoutPromo({ productName, productCount, store });
-      return;
-    }
-
+  async #checkoutWithPromo({ productName, productCount, applicablePromotion, store }) {
     const { buy, get } = applicablePromotion;
     const promoBundleSize = buy + get;
 
