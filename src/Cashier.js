@@ -22,54 +22,46 @@ class Cashier {
   }
 
   async #checkoutWithPromo({ productName, productCount, store }) {
-    const { buy, get, promoBundleSize } = store.getPromoBundle(productName);
-
-    // 재고에 수량 부족한 경우
     const restCount = store.compareWithPromoStock(productName, productCount);
     if (restCount < 0) {
-      await this.#checkoutStockShortage({
-        productName,
-        productCount,
-        store,
-        promoBundleSize,
-        restCount,
-      });
+      await this.#checkoutStockShortage({ productName, productCount, store, restCount });
       return;
     }
-
-    const promotionCount = getPromotionCount(productCount, promoBundleSize);
-    // 프로모션 적용 가능한 상품에 대해 고객이 해당 수량보다 적게 가져온 경우 / TODO: restCount가 1개(get) 이상이어야함
+    const { buy, get, promoBundleSize } = store.getPromoBundle(productName);
     if (productCount % promoBundleSize === buy && restCount > get) {
-      await this.#checkoutPromoShortage({ productName, productCount, promotionCount, store });
+      await this.#checkoutPromoShortage({ productName, productCount, promoBundleSize, store });
       return;
     }
-
-    this.#processPaymentWithPromo({
-      productName,
-      promotionAppliedCount: productCount,
-      giveAwayCount: promotionCount,
-      store,
-    });
+    this.#checkoutPromoNoCondition({ productName, productCount, promoBundleSize, store });
   }
 
-  async #checkoutStockShortage({ productName, productCount, store, promoBundleSize, restCount }) {
-    const giveAwayCount = getPromotionCount(productCount, promoBundleSize, restCount);
-    let promotionAppliedCount = giveAwayCount * promoBundleSize;
-    const restProductCount = productCount - promotionAppliedCount;
-
+  async #checkoutStockShortage({ productName, productCount, store, restCount }) {
+    const { promoBundleSize } = store.getPromoBundle(productName);
+    const { giveAwayCount, promoAppliedNum, restProductCount } = this.#calculatePromotionCounts({
+      promoBundleSize,
+      productCount,
+      restCount,
+    });
+    let promotionAppliedCount = promoAppliedNum;
     const ifPayWithoutPromo = await this.#askPayWithoutPromo(productName, restProductCount);
     if (ifPayWithoutPromo) {
-      // 일부 수량에 대해 정가로 결제
       this.#processPaymentWithoutPromo({ productName, productCount: restProductCount, store });
-      this.#processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
-      return;
+    } else {
+      promotionAppliedCount = productCount - restProductCount;
     }
-    // 정가로 결제해야 하는 수량 제외하고 결제
-    promotionAppliedCount = productCount - restProductCount;
     this.#processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
   }
 
-  async #checkoutPromoShortage({ productName, productCount, promotionCount, store }) {
+  #calculatePromotionCounts({ promoBundleSize, productCount, restCount }) {
+    const giveAwayCount = getPromotionCount(productCount, promoBundleSize, restCount);
+    const promoAppliedNum = giveAwayCount * promoBundleSize;
+    const restProductCount = productCount - promoAppliedNum;
+
+    return { giveAwayCount, promoAppliedNum, restProductCount };
+  }
+
+  async #checkoutPromoShortage({ productName, productCount, promoBundleSize, store }) {
+    const promotionCount = getPromotionCount(productCount, promoBundleSize);
     let promotionAppliedCount = productCount;
     let giveAwayCount = promotionCount;
 
@@ -79,6 +71,16 @@ class Cashier {
       giveAwayCount += 1;
     }
     this.#processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
+  }
+
+  #checkoutPromoNoCondition({ productName, productCount, promoBundleSize, store }) {
+    const promotionCount = getPromotionCount(productCount, promoBundleSize);
+    this.#processPaymentWithPromo({
+      productName,
+      promotionAppliedCount: productCount,
+      giveAwayCount: promotionCount,
+      store,
+    });
   }
 
   #processPaymentWithoutPromo({ productName, productCount, store }) {
