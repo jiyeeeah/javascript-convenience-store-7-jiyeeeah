@@ -39,8 +39,7 @@ class App {
 
     await this.#cashier.askMembershipDiscount();
 
-    const receipt = this.#cashier.getReceipt(this.#store);
-    OutputView.printMessage(receipt);
+    this.#cashier.printReceipt(this.#store);
 
     const restart = await this.#store.askRestart();
     if (restart) await this.#buyingProcess();

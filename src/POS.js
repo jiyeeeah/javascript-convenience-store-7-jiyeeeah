@@ -58,16 +58,15 @@ class POS {
     const paymentResult =
       totalPayment - this.#promotionDiscountTotal - this.#membershipDiscountTotal;
 
-    return `==============W 편의점================
-상품명		수량	금액
-${purchasedProductString}
-=============증	정===============
-${promotionProductString}
-====================================
-총구매액		${purchasedTotalCount}	${totalPayment.toLocaleString()}
-행사할인			-${this.#promotionDiscountTotal.toLocaleString()}
-멤버십할인			-${this.#membershipDiscountTotal.toLocaleString()}
-내실돈			 ${paymentResult.toLocaleString()}`;
+    return {
+      purchasedProductString,
+      promotionProductString,
+      purchasedTotalCount,
+      totalPayment,
+      promoTotal: this.#promotionDiscountTotal,
+      membershipTotal: this.#membershipDiscountTotal,
+      paymentResult,
+    };
   }
 }
 

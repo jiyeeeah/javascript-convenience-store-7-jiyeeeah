@@ -128,8 +128,8 @@ class Cashier {
     }
   }
 
-  getReceipt(store) {
-    return this.#POS.getReceipt(store);
+  printReceipt(store) {
+    OutputView.printReceipt(this.#POS.getReceipt(store));
   }
 }
 
