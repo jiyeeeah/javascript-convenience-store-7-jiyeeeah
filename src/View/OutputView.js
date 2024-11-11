@@ -29,7 +29,7 @@ const OutputView = {
 
   printPaymentInfoReceipt(paymentInfoString) {
     MissionUtils.Console.print("====================================");
-    this.printPromotionReceipt(paymentInfoString);
+    MissionUtils.Console.print(paymentInfoString);
   },
 };
 
