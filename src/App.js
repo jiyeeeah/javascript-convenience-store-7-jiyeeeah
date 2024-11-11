@@ -32,13 +32,9 @@ class App {
     this.#cashier = new Cashier();
 
     this.#store.printWelcomeAndInventory();
-
     await this.#customerBuyProduct();
-
     await this.#cashier.checkout(this.#customer.buyingProductsCount, this.#store);
-
     await this.#cashier.askMembershipDiscount();
-
     this.#cashier.printReceipt(this.#store);
 
     const restart = await this.#store.askRestart();
