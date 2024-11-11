@@ -11,62 +11,53 @@ describe("구매할 상품과 수량 입력 테스트", () => {
     customer = new Customer();
   });
 
-  test("입력값이 공백인 경우 예외가 발생한다.", async () => {
-    mockQuestions(["   "]);
+  const errorCase = [
+    {
+      caseName: "입력값이 공백인 경우",
+      inputs: [["   "], [""]],
+      errorMessage: ERROR_MESSAGE.wrongInput,
+    },
+    {
+      caseName: "입력값이 올바르지 않은 경우",
+      inputs: [
+        ["[콜라-3"],
+        ["도시락-1"],
+        ["도시락-2]"],
+        ["[콜라3]"],
+        ["[정식도시락-3][오렌지주스-1]"],
+      ],
+      errorMessage: ERROR_MESSAGE.wrongForm,
+    },
+    {
+      caseName: "재고에 존재하지 않는 제품 입력한 경우",
+      inputs: [["[도시락-3]"]],
+      errorMessage: ERROR_MESSAGE.productNotExist,
+    },
+    {
+      caseName: "수량이 0개 이하인 경우",
+      inputs: [["[콜라-0]"], ["[비타민워터-3],[에너지바--4]"]],
+      errorMessage: ERROR_MESSAGE.productCountNotNegative,
+    },
+    {
+      caseName: "재고의 수량이 부족한 경우",
+      inputs: [["[콜라-25]"], ["[오렌지주스-10]"], ["[컵라면-1],[탄산수-6]"]],
+      errorMessage: ERROR_MESSAGE.productOverStock,
+    },
+    {
+      caseName: "중복되는 상품을 입력한 경우",
+      inputs: [["[콜라-3],[콜라-1]"]],
+      errorMessage: ERROR_MESSAGE.productNoDuplicate,
+    },
+  ];
+
+  test.each(errorCase)("예외 케이스 : $caseName", async ({ inputs, errorMessage }) => {
     await store.init();
 
-    await expect(() => customer.buy(store)).rejects.toThrow(ERROR_MESSAGE.wrongInput);
-  });
+    inputs.forEach(async (input) => {
+      mockQuestions(input);
 
-  test("입력값에 대괄호가 없는 경우 예외가 발생한다.", async () => {
-    mockQuestions(["[콜라-3"]);
-    await store.init();
-
-    await expect(() => customer.buy(store)).rejects.toThrow(ERROR_MESSAGE.wrongForm);
-  });
-
-  test("입력값에 하이픈(-)이 없는 경우 예외가 발생한다.", async () => {
-    mockQuestions(["[콜라3]"]);
-    await store.init();
-
-    await expect(() => customer.buy(store)).rejects.toThrow(ERROR_MESSAGE.wrongForm);
-  });
-
-  test("재고에 존재하지 않는 제품 입력시 예외가 발생한다.", async () => {
-    mockQuestions(["[도시락-3]"]);
-    await store.init();
-
-    await expect(() => customer.buy(store)).rejects.toThrow(ERROR_MESSAGE.productNotExist);
-  });
-
-  const negativeInput = [[["[콜라-0]"], ["[비타민워터-3],[에너지바--4]"]]];
-  test.each(negativeInput)("수량이 0개 이하인 경우 예외가 발생한다.", async (input) => {
-    mockQuestions(input);
-    await store.init();
-
-    await expect(() => customer.buy(store)).rejects.toThrow(ERROR_MESSAGE.productCountNotNegative);
-  });
-
-  const outOfStockInput = [[["[콜라-25]"], ["[오렌지주스-10]"], ["[컵라면-1],[탄산수-6]"]]];
-  test.each(outOfStockInput)("재고의 수량이 부족한 경우 예외가 발생한다.", async (input) => {
-    mockQuestions(input);
-    await store.init();
-
-    await expect(() => customer.buy(store)).rejects.toThrow(ERROR_MESSAGE.productOverStock);
-  });
-
-  test("입력값이 올바르지 않은 경우 예외가 발생한다.", async () => {
-    mockQuestions(["[정식도시락-3][오렌지주스-1]"]);
-    await store.init();
-
-    await expect(() => customer.buy(store)).rejects.toThrow(ERROR_MESSAGE.wrongForm);
-  });
-
-  test("중복되는 상품을 입력한 경우 예외가 발생한다.", async () => {
-    mockQuestions(["[콜라-3],[콜라-1]"]);
-    await store.init();
-
-    await expect(() => customer.buy(store)).rejects.toThrow(ERROR_MESSAGE.productNoDuplicate);
+      await expect(() => customer.buy(store)).rejects.toThrow(errorMessage);
+    });
   });
 
   const validInput = [[["[에너지바-2],[컵라면-1]"], ["[콜라-3]"]]];
