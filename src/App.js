@@ -18,18 +18,8 @@ class App {
     await this.#buyingProcess();
   }
 
-  async #customerBuyProduct() {
-    try {
-      await this.#customer.buy(this.#store);
-    } catch (error) {
-      OutputView.printMessage(error.message);
-      await this.#customerBuyProduct();
-    }
-  }
-
   async #buyingProcess() {
-    this.#customer = new Customer();
-    this.#cashier = new Cashier();
+    this.#buyingProcessInit();
 
     this.#store.printWelcomeAndInventory();
     await this.#customerBuyProduct();
@@ -37,8 +27,21 @@ class App {
     await this.#cashier.askMembershipDiscount();
     this.#cashier.printReceipt(this.#store);
 
-    const restart = await this.#store.askRestart();
-    if (restart) await this.#buyingProcess();
+    if (await this.#store.askRestart()) await this.#buyingProcess();
+  }
+
+  #buyingProcessInit() {
+    this.#customer = new Customer();
+    this.#cashier = new Cashier();
+  }
+
+  async #customerBuyProduct() {
+    try {
+      await this.#customer.buy(this.#store);
+    } catch (error) {
+      OutputView.printMessage(error.message);
+      await this.#customerBuyProduct();
+    }
   }
 }
 
