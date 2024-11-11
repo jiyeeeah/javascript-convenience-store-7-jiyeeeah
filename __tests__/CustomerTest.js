@@ -65,6 +65,13 @@ describe("구매할 상품과 수량 입력 테스트", () => {
     await expect(() => customer.buy(store)).rejects.toThrow(ERROR_MESSAGE.productOverStock);
   });
 
+  test("입력값이 올바르지 않은 경우 예외가 발생한다.", async () => {
+    mockQuestions(["[정식도시락-3][오렌지주스-1]"]);
+    await store.init();
+
+    await expect(() => customer.buy(store)).rejects.toThrow(ERROR_MESSAGE.wrongForm);
+  });
+
   const validInput = [[["[에너지바-2],[컵라면-1]"], ["[콜라-3]"]]];
   test.each(validInput)("입력값의 형식이 올바른 경우", async (input) => {
     mockQuestions(input);
