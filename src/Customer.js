@@ -3,7 +3,11 @@ import InputView from "./View/InputView.js";
 import { isInputWrappedWith, isNumber, splitString } from "./util.js";
 
 class Customer {
-  #buyingProductsCount = new Map();
+  #buyingProductsCount;
+
+  constructor() {
+    this.#buyingProductsCount = new Map();
+  }
 
   async buy(store) {
     const customerInput = await InputView.readItem();
