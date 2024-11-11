@@ -1,7 +1,7 @@
 import POS from "./POS.js";
 import InputView from "./View/InputView.js";
 import OutputView from "./View/OutputView.js";
-import { getPromotionCount } from "./util.js";
+import { getPromotionCount, isPromotionShortage } from "./util.js";
 
 class Cashier {
   #POS;
@@ -28,7 +28,7 @@ class Cashier {
       return;
     }
     const { buy, get, promoBundleSize } = store.getPromoBundle(productName);
-    if (productCount % promoBundleSize === buy && restCount > get) {
+    if (isPromotionShortage({ buy, get, promoBundleSize, productCount, restCount })) {
       await this.#checkoutPromoShortage({ productName, productCount, promoBundleSize, store });
       return;
     }

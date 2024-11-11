@@ -13,6 +13,9 @@ export const getPromotionCount = (productCount, promoBundleSize, restCount = nul
   return Math.floor(productCount / promoBundleSize);
 };
 
+export const isPromotionShortage = ({ buy, get, promoBundleSize, productCount, restCount }) =>
+  productCount % promoBundleSize === buy && restCount > get;
+
 export const getDataFromFile = async (filePath) =>
   fs.readFileSync(filePath, "utf8", (err, data) => {
     if (err) {
