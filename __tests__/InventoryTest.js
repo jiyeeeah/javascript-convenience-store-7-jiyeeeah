@@ -31,44 +31,58 @@ describe("재고(Inventory) 클래스 테스트", () => {
 - 컵라면 1,700원 10개`);
   });
 
-  test("재고에 제품이 존재하는지 확인한다.", async () => {
+  const existCase = [
+    { name: "콜라", result: true },
+    { name: "사이다", result: true },
+    { name: "도시락", result: false },
+    { name: "환타", result: false },
+  ];
+  test.each(existCase)("재고에 $name 존재하는지 확인한다.", async ({ name, result }) => {
     // given
     await inventory.init();
-
     // then
-    expect(inventory.isExistInInventory("콜라")).toBe(true);
-    expect(inventory.isExistInInventory("비타민워터")).toBe(true);
-    expect(inventory.isExistInInventory("도시락")).toBe(false);
+    expect(inventory.isExistInInventory(name)).toBe(result);
   });
 
-  test("제품 수량이 재고에서 부족한지 확인한다.", async () => {
-    // given
-    await inventory.init();
+  const stockCase = [
+    { name: "콜라", count: 2, result: true },
+    { name: "사이다", count: 10, result: true },
+    { name: "감자칩", count: 12, result: false },
+    { name: "비타민워터", count: 30, result: false },
+  ];
+  test.each(stockCase)(
+    "$name 제품의 수량 $count개가 재고에서 부족한지 확인한다.",
+    async ({ name, count, result }) => {
+      // given
+      await inventory.init();
 
-    // then
-    expect(inventory.isInStock("콜라", 2)).toBe(true);
-    expect(inventory.isInStock("사이다", 10)).toBe(true);
-    expect(inventory.isInStock("비타민워터", 30)).toBe(false);
-  });
+      // then
+      expect(inventory.isInStock(name, count)).toBe(result);
+    },
+  );
 
-  test("제품 정보 가져오는 메서드 테스트", async () => {
-    // given
-    await inventory.init();
-
-    // then
-    expect(inventory.getProductInfo("콜라", false)).toEqual({
+  const productInfoCase = [
+    {
       name: "콜라",
-      price: 1000,
-      promotion: "null",
-      quantity: 10,
-    });
-    expect(inventory.getProductInfo("오렌지주스", true)).toEqual({
+      isPromo: false,
+      result: { name: "콜라", price: 1000, promotion: "null", quantity: 10 },
+    },
+    {
       name: "오렌지주스",
-      price: 1800,
-      quantity: 9,
-      promotion: "MD추천상품",
-    });
-  });
+      isPromo: true,
+      result: { name: "오렌지주스", price: 1800, quantity: 9, promotion: "MD추천상품" },
+    },
+  ];
+  test.each(productInfoCase)(
+    "$name 정보 가져오는 메서드 테스트",
+    async ({ name, isPromo, result }) => {
+      // given
+      await inventory.init();
+
+      // then
+      expect(inventory.getProductInfo(name, isPromo)).toEqual(result);
+    },
+  );
 
   test("제품 수량 줄이기 테스트", async () => {
     // given
