@@ -51,13 +51,8 @@ class Cashier {
     const promotionCount = getPromotionCount(productCount, promoBundleSize);
     // 프로모션 적용 가능한 상품에 대해 고객이 해당 수량보다 적게 가져온 경우 / TODO: restCount가 1개(get) 이상이어야함
     if (productCount % promoBundleSize === buy && restCount > get) {
-      const addPromoProduct = await this.#askAddPromoProduct(productName);
-      if (addPromoProduct) {
-        const promotionAppliedCount = productCount + 1;
-        const giveAwayCount = promotionCount + 1;
-        this.#processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
-        return;
-      }
+      await this.#checkoutPromoShortage({ productName, productCount, promotionCount, store });
+      return;
     }
 
     this.#processPaymentWithPromo({
@@ -87,6 +82,18 @@ class Cashier {
       giveAwayCount,
       store,
     });
+  }
+
+  async #checkoutPromoShortage({ productName, productCount, promotionCount, store }) {
+    let promotionAppliedCount = productCount;
+    let giveAwayCount = promotionCount;
+
+    const addPromoProduct = await this.#askAddPromoProduct(productName);
+    if (addPromoProduct) {
+      promotionAppliedCount += 1;
+      giveAwayCount += 1;
+    }
+    this.#processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
   }
 
   #processPaymentWithoutPromo({ productName, productCount, store }) {
