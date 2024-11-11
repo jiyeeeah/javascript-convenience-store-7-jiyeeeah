@@ -40,6 +40,15 @@ class Store {
 
   reduceStock(name, count, isPromo) {
     this.#inventory.reduceStock(name, count, isPromo);
+    if (isPromo) {
+      const productInfo = this.#inventory.getProductInfo(name, true);
+      const stockRestCount = productInfo.quantity;
+      const { promoBundleSize } = this.getPromoBundle(name);
+      if (stockRestCount < promoBundleSize) {
+        this.#inventory.reduceStock(name, stockRestCount, true);
+        this.#inventory.reduceStock(name, -stockRestCount, false);
+      }
+    }
   }
 
   isPromoApplicable(productName) {
