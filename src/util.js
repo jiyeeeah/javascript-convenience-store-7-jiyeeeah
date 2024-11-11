@@ -1,4 +1,5 @@
 import fs from "fs";
+import { ERROR_MESSAGE } from "./constant/message.js";
 
 export const isNumber = (num) => !Number.isNaN(Number(num));
 
@@ -15,7 +16,7 @@ export const getPromotionCount = (productCount, promoBundleSize, restCount = nul
 export const getDataFromFile = async (filePath) =>
   fs.readFileSync(filePath, "utf8", (err, data) => {
     if (err) {
-      throw new Error("[ERROR] 파일을 불러오는 과정에서 문제가 생겼습니다. 다시 시도해주세요");
+      throw new Error(ERROR_MESSAGE.fileReadError);
     }
     return data;
   });

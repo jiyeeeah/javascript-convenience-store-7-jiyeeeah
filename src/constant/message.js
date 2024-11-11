@@ -4,4 +4,5 @@ export const ERROR_MESSAGE = {
   productOverStock: "[ERROR] 재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.",
   wrongInput: "[ERROR] 잘못된 입력입니다. 다시 입력해 주세요.",
   productCountNotNegative: "[ERROR] 수량은 1개 이상이어야 합니다. 다시 입력해 주세요.",
+  fileReadError: "[ERROR] 파일을 불러오는 과정에서 문제가 생겼습니다. 다시 시도해주세요",
 };
