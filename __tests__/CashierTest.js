@@ -1,35 +1,6 @@
-import { MissionUtils } from "@woowacourse/mission-utils";
 import Cashier from "../src/Cashier.js";
 import Store from "../src/Store.js";
-
-const mockNowDate = (date = null) => {
-  const mockDateTimes = jest.spyOn(MissionUtils.DateTimes, "now");
-  mockDateTimes.mockReturnValue(new Date(date));
-  return mockDateTimes;
-};
-
-const mockQuestions = (inputs) => {
-  const messages = [];
-
-  MissionUtils.Console.readLineAsync = jest.fn((prompt) => {
-    messages.push(prompt);
-    const input = inputs.shift();
-
-    if (input === undefined) {
-      throw new Error("NO INPUT");
-    }
-
-    return Promise.resolve(input);
-  });
-
-  MissionUtils.Console.readLineAsync.messages = messages;
-};
-
-const getLogSpy = () => {
-  const logSpy = jest.spyOn(MissionUtils.Console, "print");
-  logSpy.mockClear();
-  return logSpy;
-};
+import { mockNowDate, mockQuestions, getLogSpy } from "../src/testUtil/TestUtil.js";
 
 describe("Cashier 클래스 테스트", () => {
   let store;

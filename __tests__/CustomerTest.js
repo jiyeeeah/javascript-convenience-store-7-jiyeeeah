@@ -1,17 +1,7 @@
-import { MissionUtils } from "@woowacourse/mission-utils";
 import { ERROR_MESSAGE } from "../src/constant/message.js";
 import Customer from "../src/Customer.js";
 import Store from "../src/Store.js";
-
-const mockQuestions = (inputs) => {
-  MissionUtils.Console.readLineAsync = jest.fn();
-
-  MissionUtils.Console.readLineAsync.mockImplementation(() => {
-    const input = inputs.shift();
-
-    return Promise.resolve(input);
-  });
-};
+import { mockQuestions } from "../src/testUtil/TestUtil.js";
 
 describe("구매할 상품과 수량 입력 테스트", () => {
   let customer;

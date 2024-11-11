@@ -1,11 +1,5 @@
-import { MissionUtils } from "@woowacourse/mission-utils";
 import Store from "../src/Store.js";
-
-const getLogSpy = () => {
-  const logSpy = jest.spyOn(MissionUtils.Console, "print");
-  logSpy.mockClear();
-  return logSpy;
-};
+import { getLogSpy } from "../src/testUtil/TestUtil.js";
 
 describe("Store 테스트", () => {
   let store;
