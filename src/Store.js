@@ -42,17 +42,23 @@ class Store {
     this.#inventory.reduceStock(name, count, isPromo);
   }
 
-  getApplicablePromotion(productName) {
+  isPromoApplicable(productName) {
     const promoProductInfo = this.#inventory.getProductInfo(productName, true);
-    if (!promoProductInfo) return null;
+    if (!promoProductInfo) return false;
+    const productPromotionName = promoProductInfo.promotion;
+    const today = MissionUtils.DateTimes.now();
+    if (!this.#promotion.isAvailable(productPromotionName, today)) return false;
 
+    return true;
+  }
+
+  getPromoBundle(productName) {
+    const promoProductInfo = this.#inventory.getProductInfo(productName, true);
     const productPromotionName = promoProductInfo.promotion;
     const promotionInfo = this.#promotion.getPromotionByName(productPromotionName);
+    const { buy, get } = promotionInfo;
 
-    const today = MissionUtils.DateTimes.now();
-    if (!this.#promotion.isAvailable(productPromotionName, today)) return null;
-
-    return promotionInfo;
+    return { buy, get, promoBundleSize: buy + get };
   }
 
   async askRestart() {
