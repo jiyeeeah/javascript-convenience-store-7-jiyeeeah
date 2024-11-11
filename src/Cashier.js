@@ -3,19 +3,22 @@ import OutputView from "./View/OutputView.js";
 import { getPromotionCount } from "./util.js";
 
 class Cashier {
-  #purchasedProduct;
-  #giveAwayProduct;
-  #payment;
+  #purchasedProducts;
+  #giveAwayProducts;
+
+  #paymentTotal;
+  #promotionDiscountTotal;
+  #membershipDiscountTotal;
 
   constructor() {
-    this.#purchasedProduct = new Map();
-    this.#giveAwayProduct = new Map();
-    this.#payment = {
-      normalPaymentTotal: 0,
-      promotionAppliedPaymentTotal: 0,
-      promotionDiscount: 0,
-      membershipDiscount: 0,
+    this.#purchasedProducts = new Map();
+    this.#giveAwayProducts = new Map();
+    this.#paymentTotal = {
+      normalPayment: 0,
+      promotionAppliedPayment: 0,
     };
+    this.#promotionDiscountTotal = 0;
+    this.#membershipDiscountTotal = 0;
   }
 
   async checkout(buyingProductsCount, store) {
@@ -92,53 +95,39 @@ class Cashier {
 
   #processPaymentWithoutPromo({ productName, productCount, store }) {
     store.reduceStock(productName, productCount, false); // 재고에서 없애기
-    const productTotalPrice = store.calculatePrice(productName, productCount);
-    this.#savePaymentInfo({ productName, productCount, productTotalPrice });
+    this.#savePaymentInfoWithoutPromo({ productName, productCount, store });
   }
 
-  #savePaymentInfo({ productName, productCount, productTotalPrice }) {
-    this.#purchasedProduct.set(
-      productName,
-      (this.#purchasedProduct.get(productName) ?? 0) + productCount,
-    );
-    this.#payment.normalPaymentTotal += productTotalPrice; // 계산해야 할 total에 저장
+  #savePaymentInfoWithoutPromo({ productName, productCount, store }) {
+    this.#addPurchasedProductCount(productName, productCount);
+    const productTotalPrice = store.calculatePrice(productName, productCount);
+    this.#paymentTotal.normalPayment += productTotalPrice; // 계산해야 할 total에 저장
   }
 
   #processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store }) {
     store.reduceStock(productName, promotionAppliedCount, true); // 재고에서 없애기
-    const promotionAppliedTotalPrice = store.calculatePrice(productName, promotionAppliedCount);
-    const promotionDiscount = store.calculatePrice(productName, giveAwayCount);
-    this.#savePaymentInfoWithPromo({
-      productName,
-      promotionAppliedCount,
-      giveAwayCount,
-      promotionAppliedTotalPrice,
-      promotionDiscount,
-    });
+    this.#savePaymentInfoWithPromo({ productName, promotionAppliedCount, giveAwayCount, store });
   }
 
-  #savePaymentInfoWithPromo({
-    productName,
-    promotionAppliedCount,
-    giveAwayCount,
-    promotionAppliedTotalPrice,
-    promotionDiscount,
-  }) {
-    this.#purchasedProduct.set(
-      productName,
-      (this.#purchasedProduct.get(productName) ?? 0) + promotionAppliedCount,
-    );
-    if (giveAwayCount > 0) this.#giveAwayProduct.set(productName, giveAwayCount);
-    this.#payment.promotionAppliedPaymentTotal += promotionAppliedTotalPrice; // 계산해야 할 total에 저장
-    this.#payment.promotionDiscount += promotionDiscount;
+  #savePaymentInfoWithPromo({ productName, promotionAppliedCount, giveAwayCount, store }) {
+    this.#addPurchasedProductCount(productName, promotionAppliedCount);
+    if (giveAwayCount > 0) this.#giveAwayProducts.set(productName, giveAwayCount);
+    const promotionAppliedTotalPrice = store.calculatePrice(productName, promotionAppliedCount);
+    const promotionDiscount = store.calculatePrice(productName, giveAwayCount);
+    this.#paymentTotal.promotionAppliedPayment += promotionAppliedTotalPrice; // 계산해야 할 total에 저장
+    this.#promotionDiscountTotal += promotionDiscount;
+  }
+
+  #addPurchasedProductCount(name, count) {
+    this.#purchasedProducts.set(name, (this.#purchasedProducts.get(name) ?? 0) + count);
   }
 
   getPurchasedProduct() {
-    return new Map(this.#purchasedProduct);
+    return new Map(this.#purchasedProducts);
   }
 
   getGiveAwayProduct() {
-    return new Map(this.#giveAwayProduct);
+    return new Map(this.#giveAwayProducts);
   }
 
   async #askPayWithoutPromo(productName, productCount) {
@@ -147,7 +136,7 @@ class Cashier {
       return answer === "Y";
     } catch (error) {
       OutputView.printMessage(error.message);
-      return this.askPayWithoutPromo(productName, productCount);
+      return this.#askPayWithoutPromo(productName, productCount);
     }
   }
 
@@ -157,7 +146,7 @@ class Cashier {
       return answer === "Y";
     } catch (error) {
       OutputView.printMessage(error.message);
-      return this.askAddPromoProduct(productName);
+      return this.#askAddPromoProduct(productName);
     }
   }
 
@@ -174,26 +163,26 @@ class Cashier {
   }
 
   #membershipDiscount() {
-    this.#payment.membershipDiscount += this.#payment.normalPaymentTotal * 0.3;
+    this.#membershipDiscountTotal += this.#paymentTotal.normalPayment * 0.3;
   }
 
   getReceipt(store) {
     let purchasedProductString = "";
     let purchasedTotalCount = 0;
-    this.#purchasedProduct.forEach((productCount, productName) => {
+    this.#purchasedProducts.forEach((productCount, productName) => {
       purchasedProductString += `${productName}     ${productCount}     ${store.calculatePrice(productName, productCount).toLocaleString()}\n`;
       purchasedTotalCount += productCount;
     });
 
     let promotionProductString = "";
-    this.#giveAwayProduct.forEach((productCount, productName) => {
+    this.#giveAwayProducts.forEach((productCount, productName) => {
       promotionProductString += `${productName}   ${productCount}\n`;
     });
 
     const totalPayment =
-      this.#payment.normalPaymentTotal + this.#payment.promotionAppliedPaymentTotal;
+      this.#paymentTotal.normalPayment + this.#paymentTotal.promotionAppliedPayment;
     const paymentResult =
-      totalPayment - this.#payment.promotionDiscount - this.#payment.membershipDiscount;
+      totalPayment - this.#promotionDiscountTotal - this.#membershipDiscountTotal;
 
     return `==============W 편의점================
 상품명		수량	금액
@@ -202,8 +191,8 @@ ${purchasedProductString}
 ${promotionProductString}
 ====================================
 총구매액		${purchasedTotalCount}	${totalPayment.toLocaleString()}
-행사할인			-${this.#payment.promotionDiscount.toLocaleString()}
-멤버십할인			-${this.#payment.membershipDiscount.toLocaleString()}
+행사할인			-${this.#promotionDiscountTotal.toLocaleString()}
+멤버십할인			-${this.#membershipDiscountTotal.toLocaleString()}
 내실돈			 ${paymentResult.toLocaleString()}`;
   }
 }
