@@ -32,6 +32,7 @@ class Customer {
     if (!store.isExistInInventory(name)) throw new Error(ERROR_MESSAGE.productNotExist);
     if (count <= 0) throw new Error(ERROR_MESSAGE.productCountNotNegative);
     if (!store.isInStock(name, count)) throw new Error(ERROR_MESSAGE.productOverStock);
+    if (this.#buyingProductsCount.has(name)) throw new Error(ERROR_MESSAGE.productNoDuplicate);
   }
 
   get buyingProductsCount() {
