@@ -40,33 +40,35 @@ class POS {
     this.#membershipDiscountTotal += this.#paymentTotal.normalPayment * 0.3;
   }
 
-  getReceipt(store) {
+  getPurchasedProductsReceiptString(store) {
     let purchasedProductString = "";
-    let purchasedTotalCount = 0;
     this.#purchasedProducts.forEach((productCount, productName) => {
       purchasedProductString += `${productName}     ${productCount}     ${store.calculatePrice(productName, productCount).toLocaleString()}\n`;
-      purchasedTotalCount += productCount;
     });
+    return purchasedProductString;
+  }
 
+  #getPurchasedProductsTotalCount() {
+    return Array.from(this.#purchasedProducts.values()).reduce((total, count) => total + count, 0);
+  }
+
+  getPromotionProductsReceiptString() {
     let promotionProductString = "";
     this.#giveAwayProducts.forEach((productCount, productName) => {
       promotionProductString += `${productName}   ${productCount}\n`;
     });
+    return promotionProductString;
+  }
 
+  getPaymentInfoReceiptString() {
+    const purchasedTotalCount = this.#getPurchasedProductsTotalCount();
     const totalPayment =
       this.#paymentTotal.normalPayment + this.#paymentTotal.promotionAppliedPayment;
-    const paymentResult =
-      totalPayment - this.#promotionDiscountTotal - this.#membershipDiscountTotal;
+    const promoTotal = this.#promotionDiscountTotal;
+    const membershipTotal = this.#membershipDiscountTotal;
+    const paymentResult = totalPayment - promoTotal - membershipTotal;
 
-    return {
-      purchasedProductString,
-      promotionProductString,
-      purchasedTotalCount,
-      totalPayment,
-      promoTotal: this.#promotionDiscountTotal,
-      membershipTotal: this.#membershipDiscountTotal,
-      paymentResult,
-    };
+    return `총구매액		${purchasedTotalCount}	${totalPayment.toLocaleString()}\n행사할인			-${promoTotal.toLocaleString()}\n멤버십할인			-${membershipTotal.toLocaleString()}\n내실돈			 ${paymentResult.toLocaleString()}`;
   }
 }
 

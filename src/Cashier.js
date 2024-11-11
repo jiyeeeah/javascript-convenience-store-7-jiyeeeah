@@ -129,7 +129,10 @@ class Cashier {
   }
 
   printReceipt(store) {
-    OutputView.printReceipt(this.#POS.getReceipt(store));
+    const purchasedProductString = this.#POS.getPurchasedProductsReceiptString(store);
+    const promotionProductString = this.#POS.getPromotionProductsReceiptString();
+    const paymentInfoString = this.#POS.getPaymentInfoReceiptString();
+    OutputView.printReceipt({ purchasedProductString, promotionProductString, paymentInfoString });
   }
 }
 
