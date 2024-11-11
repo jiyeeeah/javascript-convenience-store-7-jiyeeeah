@@ -1,10 +1,7 @@
 class POS {
   #purchasedProducts;
   #giveAwayProducts;
-
   #paymentTotal;
-  #promotionDiscountTotal;
-  #membershipDiscountTotal;
 
   constructor() {
     this.#purchasedProducts = new Map();
@@ -12,9 +9,9 @@ class POS {
     this.#paymentTotal = {
       normalPayment: 0,
       promotionAppliedPayment: 0,
+      promotionDiscount: 0,
+      membershipDiscount: 0,
     };
-    this.#promotionDiscountTotal = 0;
-    this.#membershipDiscountTotal = 0;
   }
 
   #addPurchasedProductCount(name, count) {
@@ -33,11 +30,11 @@ class POS {
     const promotionAppliedTotalPrice = store.calculatePrice(productName, promotionAppliedCount);
     const promotionDiscount = store.calculatePrice(productName, giveAwayCount);
     this.#paymentTotal.promotionAppliedPayment += promotionAppliedTotalPrice; // 계산해야 할 total에 저장
-    this.#promotionDiscountTotal += promotionDiscount;
+    this.#paymentTotal.promotionDiscount += promotionDiscount;
   }
 
   membershipDiscount() {
-    this.#membershipDiscountTotal += this.#paymentTotal.normalPayment * 0.3;
+    this.#paymentTotal.membershipDiscount += this.#paymentTotal.normalPayment * 0.3;
   }
 
   getPurchasedProductsReceiptString(store) {
@@ -64,8 +61,8 @@ class POS {
     const purchasedTotalCount = this.#getPurchasedProductsTotalCount();
     const totalPayment =
       this.#paymentTotal.normalPayment + this.#paymentTotal.promotionAppliedPayment;
-    const promoTotal = this.#promotionDiscountTotal;
-    const membershipTotal = this.#membershipDiscountTotal;
+    const promoTotal = this.#paymentTotal.promotionDiscount;
+    const membershipTotal = this.#paymentTotal.membershipDiscount;
     const paymentResult = totalPayment - promoTotal - membershipTotal;
 
     return `총구매액		${purchasedTotalCount}	${totalPayment.toLocaleString()}\n행사할인			-${promoTotal.toLocaleString()}\n멤버십할인			-${membershipTotal.toLocaleString()}\n내실돈			 ${paymentResult.toLocaleString()}`;
