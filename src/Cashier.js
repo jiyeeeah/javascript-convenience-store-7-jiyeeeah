@@ -1,4 +1,4 @@
-import POS from "./POS.js";
+import POS from "./CashierEntities/POS.js";
 import InputView from "./View/InputView.js";
 import OutputView from "./View/OutputView.js";
 import { getPromotionCount, isPromotionShortage } from "./util.js";
@@ -88,12 +88,12 @@ class Cashier {
   }
 
   #processPaymentWithoutPromo({ productName, productCount, store }) {
-    store.reduceStock(productName, productCount, false); // 재고에서 없애기
+    store.reduceStock(productName, productCount, false);
     this.#POS.savePaymentInfoWithoutPromo({ productName, productCount, store });
   }
 
   #processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store }) {
-    store.reduceStock(productName, promotionAppliedCount, true); // 재고에서 없애기
+    store.reduceStock(productName, promotionAppliedCount, true);
     this.#POS.savePaymentInfoWithPromo({
       productName,
       promotionAppliedCount,
