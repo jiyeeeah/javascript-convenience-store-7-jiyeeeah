@@ -18,9 +18,8 @@ class POS {
     this.#purchasedProducts.set(name, (this.#purchasedProducts.get(name) ?? 0) + count);
   }
 
-  savePaymentInfoWithoutPromo({ productName, productCount, store }) {
+  savePaymentInfoWithoutPromo({ productName, productCount, productTotalPrice }) {
     this.#addPurchasedProductCount(productName, productCount);
-    const productTotalPrice = store.calculatePrice(productName, productCount);
     this.#paymentTotal.normalPayment += productTotalPrice; // 계산해야 할 total에 저장
   }
 

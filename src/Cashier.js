@@ -88,8 +88,9 @@ class Cashier {
   }
 
   #processPaymentWithoutPromo({ productName, productCount, store }) {
-    store.reduceStock(productName, productCount, false);
-    this.#POS.savePaymentInfoWithoutPromo({ productName, productCount, store });
+    store.reduceStock(productName, productCount, false); // store에서 재고 줄이기
+    const productTotalPrice = store.calculatePrice(productName, productCount); // store에서 총 금액 계산
+    this.#POS.savePaymentInfoWithoutPromo({ productName, productCount, productTotalPrice }); // POS에 저장
   }
 
   #processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store }) {
