@@ -25,10 +25,13 @@ class Customer {
     if (!isInputWrappedWith(productInfo, "[]") || !productInfo.includes("-"))
       throw new Error(ERROR_MESSAGE.wrongForm);
 
-    const [productName, productCount] = productInfo.slice(1, -1).split("-");
+    const [productName, productCount] = productInfo
+      .slice(1, -1)
+      .split("-")
+      .map((val) => val.trim());
     this.#validateProduct(productName, productCount, store);
 
-    return { name: productName.trim(), count: Number(productCount.trim()) };
+    return { name: productName, count: Number(productCount) };
   }
 
   #validateProduct(name, count, store) {
