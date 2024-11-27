@@ -14,7 +14,6 @@ class App {
 
   async run() {
     await this.#store.init();
-
     await this.#buyingProcess();
   }
 

@@ -7,34 +7,38 @@ class Inventory {
     const data = await getDataFromFile("./public/products.md");
     this.#inventory = parseDataToObjects(data);
     this.#inventory.forEach((product, index) => {
-      if (product.promotion !== null && !this.getProductInfo(product.name, false)) {
-        const normalNoStockInventory = Inventory.#createOneProductInfo(product.name, product.price);
+      if (product.promotion && !this.getProductInfo(product.name, false)) {
+        const normalNoStockInventory = Inventory.#createNoStockProductInfo(
+          product.name,
+          product.price,
+        );
         this.#inventory.splice(index + 1, 0, normalNoStockInventory);
       }
     });
   }
 
-  static #createOneProductInfo(name, price) {
-    return { name, price, quantity: 0, promotion: "null" };
+  static #createNoStockProductInfo(name, price) {
+    return { name, price, quantity: 0, promotion: null };
   }
 
   getInventoryDetailsString() {
     return this.#inventory
       .map((product) => {
-        const stockString = Inventory.#createStockString(product.quantity);
+        const priceString = product.price.toLocaleString();
+        const quantityString = Inventory.#createQuantityString(product.quantity);
         const promotionString = Inventory.#createPromotionString(product.promotion);
-        return `- ${product.name} ${product.price.toLocaleString()}원 ${stockString}${promotionString}`;
+        return `- ${product.name} ${priceString}원 ${quantityString}${promotionString}`;
       })
       .join("\n");
   }
 
-  static #createStockString(quantity) {
+  static #createQuantityString(quantity) {
     if (quantity > 0) return `${quantity}개`;
     return "재고 없음";
   }
 
   static #createPromotionString(promotion) {
-    if (promotion === "null") return "";
+    if (promotion === null) return "";
     return ` ${promotion}`;
   }
 
@@ -52,14 +56,14 @@ class Inventory {
     return this.#inventory.filter(
       (product) =>
         product.name === productName &&
-        ((!isPromo && product.promotion === "null") || (isPromo && product.promotion !== "null")),
+        ((!isPromo && product.promotion === null) || (isPromo && product.promotion !== null)),
     )[0];
   }
 
   reduceStock(name, count, isPromo) {
     this.#inventory.forEach((product) => {
       if (product.name !== name) return;
-      if ((isPromo && product.promotion === "null") || (!isPromo && product.promotion !== "null"))
+      if ((isPromo && product.promotion === null) || (!isPromo && product.promotion !== null))
         return;
       product.quantity -= count;
     });

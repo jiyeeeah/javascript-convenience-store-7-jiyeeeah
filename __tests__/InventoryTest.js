@@ -65,7 +65,7 @@ describe("재고(Inventory) 클래스 테스트", () => {
     {
       name: "콜라",
       isPromo: false,
-      result: { name: "콜라", price: 1000, promotion: "null", quantity: 10 },
+      result: { name: "콜라", price: 1000, promotion: null, quantity: 10 },
     },
     {
       name: "오렌지주스",

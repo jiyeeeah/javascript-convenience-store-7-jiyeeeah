@@ -25,6 +25,7 @@ export const getDataFromFile = async (filePath) =>
   });
 
 const parseValueInData = (value) => {
+  if (value === null || value === "null") return null;
   if (isNumber(value)) return Number(value);
   return value;
 };
