@@ -30,7 +30,7 @@ class Store {
   }
 
   compareWithPromoStock(name, count) {
-    const productInfo = this.#inventory.getProductInfo(name, true);
+    const productInfo = this.#inventory.getPromoProductInfo(name);
     return productInfo.quantity - count;
   }
 
@@ -41,7 +41,7 @@ class Store {
   reduceStock(name, count, isPromo) {
     this.#inventory.reduceStock(name, count, isPromo);
     if (isPromo) {
-      const productInfo = this.#inventory.getProductInfo(name, true);
+      const productInfo = this.#inventory.getPromoProductInfo(name);
       const stockRestCount = productInfo.quantity;
       const { promoBundleSize } = this.getPromoBundle(name);
       if (stockRestCount < promoBundleSize) {
@@ -52,8 +52,9 @@ class Store {
   }
 
   isPromoApplicable(productName) {
-    const promoProductInfo = this.#inventory.getProductInfo(productName, true);
+    const promoProductInfo = this.#inventory.getPromoProductInfo(productName);
     if (!promoProductInfo) return false;
+
     const productPromotionName = promoProductInfo.promotion;
     const today = MissionUtils.DateTimes.now();
     if (!this.#promotion.isAvailable(productPromotionName, today)) return false;
@@ -62,7 +63,7 @@ class Store {
   }
 
   getPromoBundle(productName) {
-    const promoProductInfo = this.#inventory.getProductInfo(productName, true);
+    const promoProductInfo = this.#inventory.getPromoProductInfo(productName);
     const productPromotionName = promoProductInfo.promotion;
     const promotionInfo = this.#promotion.getPromotionByName(productPromotionName);
     const { buy, get } = promotionInfo;

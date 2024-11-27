@@ -7,7 +7,7 @@ class Inventory {
     const data = await getDataFromFile("./public/products.md");
     this.#inventory = parseDataToObjects(data);
     this.#inventory.forEach((product, index) => {
-      if (product.promotion && !this.getProductInfo(product.name, false)) {
+      if (product.promotion && !this.getGeneralProductInfo(product.name)) {
         const normalNoStockInventory = this.#createNoStockProductInfo(product.name, product.price);
         this.#inventory.splice(index + 1, 0, normalNoStockInventory);
       }
@@ -49,11 +49,15 @@ class Inventory {
     return totalQuantity >= count;
   }
 
-  getProductInfo(productName, isPromo) {
+  getGeneralProductInfo(productName) {
     return this.#inventory.filter(
-      (product) =>
-        product.name === productName &&
-        ((!isPromo && product.promotion === null) || (isPromo && product.promotion !== null)),
+      (product) => product.name === productName && product.promotion === null,
+    )[0];
+  }
+
+  getPromoProductInfo(productName) {
+    return this.#inventory.filter(
+      (product) => product.name === productName && product.promotion !== null,
     )[0];
   }
 
@@ -67,7 +71,7 @@ class Inventory {
   }
 
   calculatePrice(name, count) {
-    const productInfo = this.getProductInfo(name, false);
+    const productInfo = this.getGeneralProductInfo(name);
     const productPrice = productInfo.price;
 
     return productPrice * count;

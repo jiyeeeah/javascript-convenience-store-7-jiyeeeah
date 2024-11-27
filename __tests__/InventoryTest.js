@@ -61,26 +61,45 @@ describe("재고(Inventory) 클래스 테스트", () => {
     },
   );
 
-  const productInfoCase = [
+  const generalProductInfoCase = [
     {
       name: "콜라",
-      isPromo: false,
-      result: { name: "콜라", price: 1000, promotion: null, quantity: 10 },
+      result: { name: "콜라", price: 1000, quantity: 10, promotion: null },
     },
     {
       name: "오렌지주스",
-      isPromo: true,
-      result: { name: "오렌지주스", price: 1800, quantity: 9, promotion: "MD추천상품" },
+      result: { name: "오렌지주스", price: 1800, quantity: 0, promotion: null },
     },
   ];
-  test.each(productInfoCase)(
-    "$name 정보 가져오는 메서드 테스트",
-    async ({ name, isPromo, result }) => {
+  test.each(generalProductInfoCase)(
+    "$name의 일반 재고 정보 가져오는 메서드 테스트",
+    async ({ name, result }) => {
       // given
       await inventory.init();
 
       // then
-      expect(inventory.getProductInfo(name, isPromo)).toEqual(result);
+      expect(inventory.getGeneralProductInfo(name)).toEqual(result);
+    },
+  );
+
+  const promoProductInfoCase = [
+    {
+      name: "콜라",
+      result: { name: "콜라", price: 1000, quantity: 10, promotion: "탄산2+1" },
+    },
+    {
+      name: "오렌지주스",
+      result: { name: "오렌지주스", price: 1800, quantity: 9, promotion: "MD추천상품" },
+    },
+  ];
+  test.each(promoProductInfoCase)(
+    "$name의 프로모션 재고 정보 가져오는 메서드 테스트",
+    async ({ name, result }) => {
+      // given
+      await inventory.init();
+
+      // then
+      expect(inventory.getPromoProductInfo(name)).toEqual(result);
     },
   );
 
