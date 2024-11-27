@@ -103,16 +103,28 @@ describe("재고(Inventory) 클래스 테스트", () => {
     },
   );
 
-  test("제품 수량 줄이기 테스트", async () => {
+  test("일반 제품 수량 줄이기 테스트", async () => {
     // given
     await inventory.init();
 
     // when
-    inventory.reduceStock("콜라", 3, false); // 총 수량 17개 남음
+    inventory.reduceGeneralStock("콜라", 3); // 총 수량 17개 남음
 
     // then
     expect(inventory.isInStock("콜라", 17)).toBe(true);
     expect(inventory.isInStock("콜라", 18)).toBe(false);
+  });
+
+  test("프로모션 제품 수량 줄이기 테스트", async () => {
+    // given
+    await inventory.init();
+
+    // when
+    inventory.reducePromoStock("콜라", 5); // 총 수량 15개 남음
+
+    // then
+    expect(inventory.isInStock("콜라", 15)).toBe(true);
+    expect(inventory.isInStock("콜라", 16)).toBe(false);
   });
 
   test("제품 가격 계산 테스트", async () => {

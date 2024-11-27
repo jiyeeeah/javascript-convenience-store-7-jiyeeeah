@@ -88,19 +88,22 @@ class Cashier {
   }
 
   #processPaymentWithoutPromo({ productName, productCount, store }) {
-    store.reduceStock(productName, productCount, false); // store에서 재고 줄이기
+    store.reduceGeneralStock(productName, productCount); // store에서 재고 줄이기
     const productTotalPrice = store.calculatePrice(productName, productCount); // store에서 총 금액 계산
     this.#POS.savePaymentInfoWithoutPromo({ productName, productCount, productTotalPrice }); // POS에 저장
   }
 
   #processPaymentWithPromo({ productName, promotionAppliedCount, giveAwayCount, store }) {
-    store.reduceStock(productName, promotionAppliedCount, true);
+    store.reducePromoStock(productName, promotionAppliedCount);
+    const promotionAppliedTotalPrice = store.calculatePrice(productName, promotionAppliedCount);
     this.#POS.savePaymentInfoWithPromo({
       productName,
       promotionAppliedCount,
-      giveAwayCount,
-      store,
+      promotionAppliedTotalPrice,
     });
+
+    const promotionDiscountTotal = store.calculatePrice(productName, giveAwayCount);
+    this.#POS.saveGiveAwayInfo({ productName, giveAwayCount, promotionDiscountTotal });
   }
 
   async #askPayWithoutPromo(productName, productCount) {

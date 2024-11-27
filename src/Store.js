@@ -38,17 +38,26 @@ class Store {
     return this.#inventory.calculatePrice(name, count);
   }
 
-  reduceStock(name, count, isPromo) {
-    this.#inventory.reduceStock(name, count, isPromo);
-    if (isPromo) {
-      const productInfo = this.#inventory.getPromoProductInfo(name);
-      const stockRestCount = productInfo.quantity;
-      const { promoBundleSize } = this.getPromoBundle(name);
-      if (stockRestCount < promoBundleSize) {
-        this.#inventory.reduceStock(name, stockRestCount, true);
-        this.#inventory.reduceStock(name, -stockRestCount, false);
-      }
-    }
+  reduceGeneralStock(name, count) {
+    this.#inventory.reduceGeneralStock(name, count);
+  }
+
+  reducePromoStock(name, count) {
+    const productInfo = this.#inventory.getPromoProductInfo(name);
+    const restStock = count - productInfo.quantity;
+
+    this.#inventory.reducePromoStock(name, productInfo.quantity);
+    this.#inventory.reduceGeneralStock(name, restStock);
+
+    const { promoBundleSize } = this.getPromoBundle(name);
+    const stockRestCount = productInfo.quantity;
+    if (stockRestCount < promoBundleSize) this.#reallocateRemainingPromoStock(name, stockRestCount);
+  }
+
+  // 남는 재고가 promoBundleSize보다 작은 경우 남은 프로모션 재고를 일반 재고로 이동
+  #reallocateRemainingPromoStock(name, stockRestCount) {
+    this.#inventory.reducePromoStock(name, stockRestCount);
+    this.#inventory.reduceGeneralStock(name, -stockRestCount);
   }
 
   isPromoApplicable(productName) {

@@ -61,11 +61,18 @@ class Inventory {
     )[0];
   }
 
-  reduceStock(name, count, isPromo) {
+  reduceGeneralStock(name, count) {
     this.#inventory.forEach((product) => {
       if (product.name !== name) return;
-      if ((isPromo && product.promotion === null) || (!isPromo && product.promotion !== null))
-        return;
+      if (product.promotion) return;
+      product.quantity -= count;
+    });
+  }
+
+  reducePromoStock(name, count) {
+    this.#inventory.forEach((product) => {
+      if (product.name !== name) return;
+      if (!product.promotion) return;
       product.quantity -= count;
     });
   }

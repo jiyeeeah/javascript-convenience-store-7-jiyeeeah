@@ -23,13 +23,14 @@ class POS {
     this.#paymentTotal.normalPayment += productTotalPrice; // 계산해야 할 total에 저장
   }
 
-  savePaymentInfoWithPromo({ productName, promotionAppliedCount, giveAwayCount, store }) {
+  savePaymentInfoWithPromo({ productName, promotionAppliedCount, promotionAppliedTotalPrice }) {
     this.#addPurchasedProductCount(productName, promotionAppliedCount);
-    if (giveAwayCount > 0) this.#giveAwayProducts.set(productName, giveAwayCount);
-    const promotionAppliedTotalPrice = store.calculatePrice(productName, promotionAppliedCount);
-    const promotionDiscount = store.calculatePrice(productName, giveAwayCount);
     this.#paymentTotal.promotionAppliedPayment += promotionAppliedTotalPrice; // 계산해야 할 total에 저장
-    this.#paymentTotal.promotionDiscount += promotionDiscount;
+  }
+
+  saveGiveAwayInfo({ productName, giveAwayCount, promotionDiscountTotal }) {
+    if (giveAwayCount > 0) this.#giveAwayProducts.set(productName, giveAwayCount);
+    this.#paymentTotal.promotionDiscount += promotionDiscountTotal;
   }
 
   membershipDiscount() {

@@ -50,6 +50,36 @@ describe("Store 테스트", () => {
     expect(store.compareWithPromoStock("오렌지주스", 1)).toBe(8);
   });
 
+  const promotionStockReduceCase = [
+    {
+      productName: "컵라면",
+      amount: 5,
+      resultPromoStock: 0,
+      resultTotalSock: 6,
+    },
+    {
+      productName: "콜라",
+      amount: 12,
+      resultPromoStock: 0,
+      resultTotalSock: 8,
+    },
+  ];
+  test.each(promotionStockReduceCase)(
+    "프로모션 재고 줄이기 테스트",
+    async ({ productName, amount, resultPromoStock, resultTotalSock }) => {
+      // given
+      await store.init();
+
+      // when
+      store.reducePromoStock(productName, amount);
+
+      // then
+      expect(store.compareWithPromoStock(productName, resultPromoStock)).toBe(0);
+      expect(store.isInStock(productName, resultTotalSock)).toBe(true);
+      expect(store.isInStock(productName, resultTotalSock + 1)).toBe(false);
+    },
+  );
+
   const isPromotionAvailableCase = [
     {
       name: "감자칩",
