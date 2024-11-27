@@ -1,4 +1,4 @@
-import { ERROR_MESSAGE } from "../src/constant/message.js";
+import ERROR_MESSAGE from "../src/constant/errorMessage.js";
 import Customer from "../src/Customer.js";
 import Store from "../src/Store.js";
 import { mockQuestions } from "../src/testUtil/TestUtil.js";

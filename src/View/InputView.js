@@ -1,5 +1,5 @@
 import { MissionUtils } from "@woowacourse/mission-utils";
-import { ERROR_MESSAGE } from "../constant/message.js";
+import ERROR_MESSAGE from "../constant/errorMessage.js";
 
 const InputView = {
   async readItem() {

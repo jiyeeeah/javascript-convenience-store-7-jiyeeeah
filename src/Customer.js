@@ -1,4 +1,4 @@
-import { ERROR_MESSAGE } from "./constant/message.js";
+import ERROR_MESSAGE from "./constant/errorMessage.js";
 import InputView from "./View/InputView.js";
 import { isInputWrappedWith, isNumber, splitString } from "./util.js";
 

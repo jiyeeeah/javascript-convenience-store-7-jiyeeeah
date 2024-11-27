@@ -1,5 +1,5 @@
 import fs from "fs";
-import { ERROR_MESSAGE } from "./constant/message.js";
+import ERROR_MESSAGE from "./constant/errorMessage.js";
 
 export const isNumber = (num) => !Number.isNaN(Number(num));
 
