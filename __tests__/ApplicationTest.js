@@ -1,6 +1,6 @@
-import App from "../src/App.js";
 import { MissionUtils } from "@woowacourse/mission-utils";
 import { EOL as LINE_SEPARATOR } from "os";
+import App from "../src/App.js";
 
 const mockQuestions = (inputs) => {
   const messages = [];
@@ -31,9 +31,7 @@ const getLogSpy = () => {
   return logSpy;
 };
 
-const getOutput = (logSpy) => {
-  return [...logSpy.mock.calls].join(LINE_SEPARATOR);
-};
+const getOutput = (logSpy) => [...logSpy.mock.calls].join(LINE_SEPARATOR);
 
 const expectLogContains = (received, expects) => {
   expects.forEach((exp) => {
@@ -62,9 +60,7 @@ const runExceptions = async ({
   await app.run();
 
   // then
-  expect(logSpy).toHaveBeenCalledWith(
-    expect.stringContaining(expectedErrorMessage)
-  );
+  expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(expectedErrorMessage));
 };
 
 const run = async ({
@@ -85,10 +81,7 @@ const run = async ({
 
   // then
   if (expectedIgnoringWhiteSpaces.length > 0) {
-    expectLogContainsWithoutSpacesAndEquals(
-      output,
-      expectedIgnoringWhiteSpaces
-    );
+    expectLogContainsWithoutSpacesAndEquals(output, expectedIgnoringWhiteSpaces);
   }
   if (expected.length > 0) {
     expectLogContains(output, expected);
@@ -150,8 +143,7 @@ describe("편의점", () => {
     await runExceptions({
       inputs: ["[컵라면-12]", "N", "N"],
       inputsToTerminate: INPUTS_TO_TERMINATE,
-      expectedErrorMessage:
-        "[ERROR] 재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.",
+      expectedErrorMessage: "[ERROR] 재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.",
     });
   });
 });
